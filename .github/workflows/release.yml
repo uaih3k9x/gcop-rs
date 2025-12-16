@@ -57,22 +57,22 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
             artifact_name: gcop-rs
-            asset_name: gcop-rs-linux-amd64
+            platform: linux-amd64
 
           - target: x86_64-apple-darwin
             os: macos-latest
             artifact_name: gcop-rs
-            asset_name: gcop-rs-macos-amd64
+            platform: macos-amd64
 
           - target: aarch64-apple-darwin
             os: macos-latest
             artifact_name: gcop-rs
-            asset_name: gcop-rs-macos-arm64
+            platform: macos-arm64
 
           - target: x86_64-pc-windows-msvc
             os: windows-latest
             artifact_name: gcop-rs.exe
-            asset_name: gcop-rs-windows-amd64.exe
+            platform: windows-amd64.exe
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -91,10 +91,18 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: strip target/${{ matrix.target }}/release/${{ matrix.artifact_name }}
 
+      - name: Prepare release binary
+        shell: bash
+        run: |
+          VERSION=${{ needs.create-release.outputs.version }}
+          cd target/${{ matrix.target }}/release
+          # Rename: gcop-rs -> gcop-rs-v0.1.0-linux-amd64
+          cp ${{ matrix.artifact_name }} gcop-rs-v${VERSION}-${{ matrix.platform }}
+
       - name: Upload binary to release
         uses: softprops/action-gh-release@v1
         with:
-          files: target/${{ matrix.target }}/release/${{ matrix.artifact_name }}
+          files: target/${{ matrix.target }}/release/gcop-rs-v${{ needs.create-release.outputs.version }}-${{ matrix.platform }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
