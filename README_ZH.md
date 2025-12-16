@@ -4,6 +4,8 @@
 
 AI 驱动的 Git 提交信息生成器和代码审查工具，使用 Rust 编写。
 
+> **说明**: 这是对原 [gcop](https://github.com/Undertone0809/gcop) 项目（Python 版本）的 Rust 重写。由于原项目不再积极维护，本项目旨在提供更好的性能、可靠性和可维护性。
+
 **[English](README.md)** | **[文档](docs/zh/)**
 
 ## 功能特性

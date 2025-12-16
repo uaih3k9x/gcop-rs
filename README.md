@@ -4,6 +4,8 @@
 
 AI-powered Git commit message generator and code reviewer, written in Rust.
 
+> **Note**: This is a Rust rewrite of the original [gcop](https://github.com/Undertone0809/gcop) project (Python). Since the original project is no longer actively maintained, this version was created to provide better performance, reliability, and maintainability.
+
 **[中文文档](README_ZH.md)** | **[Documentation](docs/)**
 
 ## Features
