@@ -40,6 +40,7 @@ pub struct CommitContext {
     pub deletions: usize,
     pub branch_name: Option<String>,
     pub custom_prompt: Option<String>,
+    pub user_feedback: Option<String>, // 用户重试反馈
 }
 
 /// 审查类型

@@ -74,7 +74,7 @@ pub fn build_commit_prompt(
         .map(|b| format!("- Branch: {}", b))
         .unwrap_or_default();
 
-    template
+    let mut prompt = template
         .replace("{diff}", diff)
         .replace("{files_changed}", &context.files_changed.join(", "))
         .replace("{insertions}", &context.insertions.to_string())
@@ -83,7 +83,15 @@ pub fn build_commit_prompt(
             "{branch_name}",
             context.branch_name.as_deref().unwrap_or(""),
         )
-        .replace("{branch_info}", &branch_info)
+        .replace("{branch_info}", &branch_info);
+
+    // 在 prompt 尾部追加用户反馈
+    if let Some(feedback) = &context.user_feedback {
+        prompt.push_str("\n\n## Additional User Requirement:\n");
+        prompt.push_str(feedback);
+    }
+
+    prompt
 }
 
 /// 构建代码审查的 prompt

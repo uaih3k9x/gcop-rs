@@ -165,6 +165,7 @@ impl LLMProvider for OpenAIProvider {
             deletions: 0,
             branch_name: None,
             custom_prompt: None,
+            user_feedback: None,
         });
 
         let prompt =

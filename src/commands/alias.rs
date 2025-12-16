@@ -13,12 +13,12 @@ const GCOP_ALIASES: &[(&str, &str, &str)] = &[
     ("c", "!gcop-rs commit", "Shorthand for 'git gcommit'"),
     (
         "ac",
-        "!git add -A && gcop-rs commit -y",
+        "!git add -A && gcop-rs commit",
         "Add all changes and commit with AI message",
     ),
     (
         "acp",
-        "!git add -A && gcop-rs commit -y && git push",
+        "!git add -A && gcop-rs commit && git push",
         "Add all, commit with AI, and push",
     ),
     ("ghelp", "!gcop-rs --help", "Show gcop-rs help message"),

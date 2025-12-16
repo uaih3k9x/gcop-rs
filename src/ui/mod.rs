@@ -5,5 +5,5 @@ pub mod spinner;
 
 pub use colors::*;
 pub use editor::*;
-pub use prompt::*;
+pub use prompt::{CommitAction, commit_action_menu, confirm, get_retry_feedback};
 pub use spinner::*;
