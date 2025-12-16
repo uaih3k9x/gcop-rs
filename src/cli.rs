@@ -1,0 +1,66 @@
+use clap::{Parser, Subcommand};
+
+#[derive(Parser)]
+#[command(name = "gcop")]
+#[command(author, version, about = "Git Copilot in Rust", long_about = None)]
+pub struct Cli {
+    #[command(subcommand)]
+    pub command: Commands,
+
+    /// Enable verbose output
+    #[arg(short, long, global = true)]
+    pub verbose: bool,
+
+    /// Override default LLM provider
+    #[arg(short, long, global = true)]
+    pub provider: Option<String>,
+}
+
+#[derive(Subcommand)]
+pub enum Commands {
+    /// Generate commit message for staged changes
+    Commit {
+        /// Skip interactive editor
+        #[arg(short, long)]
+        no_edit: bool,
+
+        /// Skip confirmation before committing
+        #[arg(short = 'y', long)]
+        yes: bool,
+    },
+
+    /// Review code changes
+    Review {
+        /// What to review
+        #[command(subcommand)]
+        target: ReviewTarget,
+
+        /// Output format: text | json | markdown
+        #[arg(short, long, default_value = "text")]
+        format: String,
+    },
+}
+
+#[derive(Subcommand)]
+pub enum ReviewTarget {
+    /// Review uncommitted changes
+    Changes,
+
+    /// Review a specific commit
+    Commit {
+        /// Commit hash
+        hash: String,
+    },
+
+    /// Review a range of commits
+    Range {
+        /// Commit range (e.g., main..feature)
+        range: String,
+    },
+
+    /// Review a file or directory
+    File {
+        /// Path to file or directory
+        path: String,
+    },
+}

@@ -1,3 +1,62 @@
-fn main() {
-    println!("Hello, world!");
+mod cli;
+mod config;
+mod error;
+
+use anyhow::Result;
+use clap::Parser;
+use cli::{Cli, Commands, ReviewTarget};
+use tokio::runtime::Runtime;
+use tracing_subscriber;
+
+fn main() -> Result<()> {
+    // 初始化 tracing 日志
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::from_default_env()
+                .add_directive(tracing::Level::INFO.into()),
+        )
+        .init();
+
+    // 解析 CLI 参数
+    let cli = Cli::parse();
+
+    // 加载配置
+    let config = config::load_config()?;
+
+    // 创建 tokio 运行时
+    let rt = Runtime::new()?;
+
+    // 根据子命令路由
+    rt.block_on(async {
+        match cli.command {
+            Commands::Commit { no_edit, yes } => {
+                println!("gcop commit 命令");
+                println!("  --no-edit: {}", no_edit);
+                println!("  --yes: {}", yes);
+                println!("  Provider: {:?}", cli.provider);
+                println!("\n[Not implemented yet]");
+                Ok(())
+            }
+            Commands::Review { target, format } => {
+                println!("gcop review 命令");
+                println!("  --format: {}", format);
+                match target {
+                    ReviewTarget::Changes => {
+                        println!("  Target: 未提交的变更");
+                    }
+                    ReviewTarget::Commit { hash } => {
+                        println!("  Target: Commit {}", hash);
+                    }
+                    ReviewTarget::Range { range } => {
+                        println!("  Target: Range {}", range);
+                    }
+                    ReviewTarget::File { path } => {
+                        println!("  Target: File/Dir {}", path);
+                    }
+                }
+                println!("\n[Not implemented yet]");
+                Ok(())
+            }
+        }
+    })
 }
