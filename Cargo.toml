@@ -3,8 +3,13 @@ name = "gcop-rs"
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
-description = "Git Copilot, but written in Rust."
+description = "AI-powered Git commit message generator and code reviewer"
 authors = ["AptS-1547 <apts-1547@esaps.net>"]
+repository = "https://github.com/AptS-1547/gcop-rs"
+homepage = "https://github.com/AptS-1547/gcop-rs"
+keywords = ["git", "commit", "ai", "code-review", "cli"]
+categories = ["command-line-utilities", "development-tools"]
+readme = "README.md"
 
 # 优化配置
 [profile.dev]

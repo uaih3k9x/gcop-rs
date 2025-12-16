@@ -11,7 +11,7 @@ pub enum GcopError {
     Config(String),
 
     #[error("LLM provider error: {0}")]
-    LLM(String),
+    Llm(String),
 
     #[error("Network error: {0}")]
     Network(#[from] reqwest::Error),
@@ -63,16 +63,16 @@ impl GcopError {
             GcopError::Config(msg) if msg.contains("not found in config") => Some(
                 "Check your ~/.config/gcop/config.toml or use the default providers: claude, openai, ollama",
             ),
-            GcopError::LLM(msg) if msg.contains("401") => {
+            GcopError::Llm(msg) if msg.contains("401") => {
                 Some("Check if your API key is valid and has not expired")
             }
-            GcopError::LLM(msg) if msg.contains("429") => {
+            GcopError::Llm(msg) if msg.contains("429") => {
                 Some("Rate limit exceeded. Wait a moment and try again, or upgrade your API plan")
             }
-            GcopError::LLM(msg) if msg.contains("500") || msg.contains("503") => {
+            GcopError::Llm(msg) if msg.contains("500") || msg.contains("503") => {
                 Some("API service is temporarily unavailable. Try again in a few moments")
             }
-            GcopError::LLM(msg) if msg.contains("Failed to parse") => {
+            GcopError::Llm(msg) if msg.contains("Failed to parse") => {
                 Some("Try using --verbose flag to see the full LLM response and debug the issue")
             }
             _ => None,

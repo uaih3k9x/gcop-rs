@@ -1,12 +1,14 @@
 use serde::{Deserialize, Serialize};
 
 /// LLM 消息结构
+#[allow(dead_code)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Message {
     pub role: String,
     pub content: String,
 }
 
+#[allow(dead_code)]
 impl Message {
     /// 创建 user 消息
     pub fn user(content: impl Into<String>) -> Self {

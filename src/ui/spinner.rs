@@ -20,6 +20,7 @@ impl Spinner {
     }
 
     /// 完成并显示最终消息
+    #[allow(dead_code)]
     pub fn finish_with_message(&self, message: &str) {
         self.pb.finish_with_message(message.to_string());
     }

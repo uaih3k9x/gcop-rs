@@ -29,7 +29,7 @@ pub const DEFAULT_OLLAMA_BASE: &str = "http://localhost:11434";
 ///
 /// # 示例
 /// ```
-/// use gcop_rs::llm::provider::complete_endpoint;
+/// use gcop_rs::llm::provider::utils::complete_endpoint;
 ///
 /// assert_eq!(
 ///     complete_endpoint("https://api.deepseek.com", "/v1/chat/completions"),

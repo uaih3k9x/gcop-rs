@@ -127,7 +127,7 @@ impl ClaudeProvider {
         tracing::debug!("Claude API response body: {}", response_text);
 
         if !status.is_success() {
-            return Err(GcopError::LLM(format!(
+            return Err(GcopError::Llm(format!(
                 "Claude API error ({}): {}",
                 status, response_text
             )));
@@ -135,7 +135,7 @@ impl ClaudeProvider {
 
         // 解析 JSON
         let response_body: ClaudeResponse = serde_json::from_str(&response_text).map_err(|e| {
-            GcopError::LLM(format!(
+            GcopError::Llm(format!(
                 "Failed to parse Claude response: {}. Raw response: {}",
                 e, response_text
             ))
@@ -218,7 +218,7 @@ impl LLMProvider for ClaudeProvider {
                 response.clone()
             };
 
-            GcopError::LLM(format!(
+            GcopError::Llm(format!(
                 "Failed to parse review result: {}. Response preview: {}",
                 e, preview
             ))

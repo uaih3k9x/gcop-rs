@@ -26,6 +26,7 @@ pub trait LLMProvider: Send + Sync {
     ) -> Result<ReviewResult>;
 
     /// Provider 名称
+    #[allow(dead_code)]
     fn name(&self) -> &str;
 
     /// 验证配置
@@ -44,6 +45,7 @@ pub struct CommitContext {
 }
 
 /// 审查类型
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum ReviewType {
     UncommittedChanges,
