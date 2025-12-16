@@ -96,6 +96,14 @@ impl ClaudeProvider {
             }],
         };
 
+        // Debug 模式下输出请求内容
+        tracing::debug!(
+            "Claude API request: model={}, max_tokens={}, temperature={}",
+            self.model,
+            self.max_tokens,
+            self.temperature
+        );
+
         let response = self
             .client
             .post(&self.endpoint)
@@ -106,16 +114,31 @@ impl ClaudeProvider {
             .send()
             .await?;
 
-        if !response.status().is_success() {
-            let status = response.status();
-            let error_text = response.text().await?;
+        let status = response.status();
+
+        // 先获取文本响应
+        let response_text = response.text().await?;
+
+        // Debug 模式下输出原始响应
+        tracing::debug!("Claude API response status: {}", status);
+        tracing::debug!("Claude API response body: {}", response_text);
+
+        if !status.is_success() {
             return Err(GcopError::LLM(format!(
                 "Claude API error ({}): {}",
-                status, error_text
+                status, response_text
             )));
         }
 
-        let response_body: ClaudeResponse = response.json().await?;
+        // 解析 JSON
+        let response_body: ClaudeResponse = serde_json::from_str(&response_text).map_err(
+            |e| {
+                GcopError::LLM(format!(
+                    "Failed to parse Claude response: {}. Raw response: {}",
+                    e, response_text
+                ))
+            },
+        )?;
 
         let text = response_body
             .content
@@ -144,16 +167,53 @@ impl LLMProvider for ClaudeProvider {
         });
 
         let prompt = crate::llm::prompt::build_commit_prompt(diff, &ctx);
-        self.call_api(&prompt).await
+
+        // Debug 模式下输出 prompt 长度
+        tracing::debug!(
+            "Commit message generation prompt length: {} chars",
+            prompt.len()
+        );
+
+        let response = self.call_api(&prompt).await?;
+
+        // Debug 模式下输出生成的消息
+        tracing::debug!("Generated commit message: {}", response);
+
+        Ok(response)
     }
 
     async fn review_code(&self, diff: &str, review_type: ReviewType) -> Result<ReviewResult> {
         let prompt = crate::llm::prompt::build_review_prompt(diff, &review_type);
         let response = self.call_api(&prompt).await?;
 
+        // Debug 模式下输出 LLM 返回的原始文本
+        tracing::debug!("LLM review response: {}", response);
+
+        // 清理响应：移除可能的 markdown 代码块标记
+        let cleaned_response = response
+            .trim()
+            .strip_prefix("```json")
+            .unwrap_or(&response)
+            .strip_prefix("```")
+            .unwrap_or(&response)
+            .strip_suffix("```")
+            .unwrap_or(&response)
+            .trim();
+
         // 解析 JSON 响应
-        let result: ReviewResult = serde_json::from_str(&response)
-            .map_err(|e| GcopError::LLM(format!("Failed to parse review result: {}", e)))?;
+        let result: ReviewResult = serde_json::from_str(cleaned_response).map_err(|e| {
+            // 在错误中包含原始响应的前 500 字符
+            let preview = if response.len() > 500 {
+                format!("{}...", &response[..500])
+            } else {
+                response.clone()
+            };
+
+            GcopError::LLM(format!(
+                "Failed to parse review result: {}. Response preview: {}",
+                e, preview
+            ))
+        })?;
 
         Ok(result)
     }

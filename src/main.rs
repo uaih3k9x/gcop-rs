@@ -8,20 +8,27 @@ mod ui;
 
 use anyhow::Result;
 use clap::Parser;
-use cli::{Cli, Commands, ReviewTarget};
+use cli::{Cli, Commands};
 use tokio::runtime::Runtime;
 
 fn main() -> Result<()> {
+    // 先解析 CLI 参数
+    let cli = Cli::parse();
+
+    // 根据 verbose 标志设置日志级别
+    let log_level = if cli.verbose {
+        tracing::Level::DEBUG
+    } else {
+        tracing::Level::INFO
+    };
+
     // 初始化 tracing 日志
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::from_default_env()
-                .add_directive(tracing::Level::INFO.into()),
+                .add_directive(log_level.into()),
         )
         .init();
-
-    // 解析 CLI 参数
-    let cli = Cli::parse();
 
     // 加载配置
     let config = config::load_config()?;
@@ -53,24 +60,23 @@ fn main() -> Result<()> {
                 }
                 Ok(())
             }
-            Commands::Review { target, format } => {
-                println!("gcop review 命令");
-                println!("  --format: {}", format);
-                match target {
-                    ReviewTarget::Changes => {
-                        println!("  Target: 未提交的变更");
-                    }
-                    ReviewTarget::Commit { hash } => {
-                        println!("  Target: Commit {}", hash);
-                    }
-                    ReviewTarget::Range { range } => {
-                        println!("  Target: Range {}", range);
-                    }
-                    ReviewTarget::File { path } => {
-                        println!("  Target: File/Dir {}", path);
+            Commands::Review {
+                ref target,
+                ref format,
+            } => {
+                // 执行 review 命令
+                if let Err(e) = commands::review::run(&cli, &config, target, format).await {
+                    // 错误处理
+                    match e {
+                        error::GcopError::UserCancelled => {
+                            std::process::exit(0);
+                        }
+                        _ => {
+                            ui::error(&format!("Error: {}", e), config.ui.colored);
+                            std::process::exit(1);
+                        }
                     }
                 }
-                println!("\n[Not implemented yet]");
                 Ok(())
             }
         }
