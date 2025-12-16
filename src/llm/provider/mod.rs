@@ -1,4 +1,6 @@
 pub mod claude;
+pub mod ollama;
+pub mod openai;
 
 use std::sync::Arc;
 
@@ -22,6 +24,14 @@ pub fn create_provider(
     match name {
         "claude" => {
             let provider = claude::ClaudeProvider::new(provider_config)?;
+            Ok(Arc::new(provider))
+        }
+        "openai" => {
+            let provider = openai::OpenAIProvider::new(provider_config)?;
+            Ok(Arc::new(provider))
+        }
+        "ollama" => {
+            let provider = ollama::OllamaProvider::new(provider_config)?;
             Ok(Arc::new(provider))
         }
         _ => Err(GcopError::Config(format!("Unsupported provider: {}", name))),
