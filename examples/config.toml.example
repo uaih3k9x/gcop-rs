@@ -1,229 +1,78 @@
-# gcop-rs 配置文件
-# 位置: ~/.config/gcop/config.toml
+# gcop-rs Configuration File
+# Location: ~/.config/gcop/config.toml
 #
-# ⚠️  安全警告 ⚠️
-# 此配置文件可能包含 API key 等敏感信息！
-# 1. 请勿将此文件提交到 git 仓库
-# 2. 建议设置文件权限: chmod 600 ~/.config/gcop/config.toml
-# 3. 将 config.toml 添加到项目的 .gitignore
-#
-# 所有配置都是可选的，未配置时使用默认值
-# 环境变量的优先级高于此配置文件
+# ⚠️  Contains sensitive API keys - DO NOT commit to git!
+# Recommended permissions: chmod 600 ~/.config/gcop/config.toml
 
 # ============================================
-# LLM 配置
+# LLM Configuration
 # ============================================
 [llm]
-# 默认使用的 provider
-# 可选值: "claude" | "openai" | "ollama"
-# 可以通过 --provider 参数临时覆盖
+# Default provider: "claude" | "openai" | "ollama"
 default_provider = "claude"
 
-# --------------------------------------------
-# Claude Provider 配置
-# --------------------------------------------
+# Claude Provider
 [llm.providers.claude]
-# API 端点（可选，默认为官方端点）
-endpoint = "https://api.anthropic.com/v1/messages"
-
-# API Key 配置方式:
-# 方式 1（推荐）: 直接在配置文件中设置
+# API key (or use environment variable ANTHROPIC_API_KEY)
 api_key = "sk-ant-api03-your-key-here"
 
-# 方式 2: 使用环境变量
-# export ANTHROPIC_API_KEY="sk-ant-..."
-# 注意：配置文件中的 api_key 优先级更高
-
-# 获取 API key: https://console.anthropic.com/
-
-# 模型选择:
-# - claude-sonnet-4-5-20250929 (推荐，平衡性能和成本)
-# - claude-opus-4-5-20251101 (最强，适合复杂审查，速度慢且贵)
-# - claude-3-5-sonnet-20241022 (旧版 Sonnet)
+# Model selection:
+# - claude-sonnet-4-5-20250929 (recommended, balanced performance and cost)
+# - claude-opus-4-5-20251101 (most powerful, for complex reviews)
 model = "claude-sonnet-4-5-20250929"
 
-# 温度参数 (0.0-1.0)
-# - 0.0-0.3: 更确定性和一致性，适合 commit message
-# - 0.5-0.7: 平衡创造性和准确性
-# - 0.8-1.0: 更有创造性，适合探索性审查
-temperature = 0.3
-
-# 最大 token 数（可选）
-# - commit: 1000-2000 通常足够
-# - review: 2000-4000 适合详细审查
-max_tokens = 2000
-
-# --------------------------------------------
-# OpenAI Provider 配置
-# --------------------------------------------
+# OpenAI Provider
 [llm.providers.openai]
-# API 端点（可选，默认为官方端点）
-endpoint = "https://api.openai.com/v1/chat/completions"
-
-# API Key 配置方式:
-# 方式 1（推荐）: 直接在配置文件中设置
+# API key (or use environment variable OPENAI_API_KEY)
 api_key = "sk-your-openai-key-here"
-
-# 方式 2: 使用环境变量
-# export OPENAI_API_KEY="sk-..."
-# 注意：配置文件中的 api_key 优先级更高
-
-# 获取 API key: https://platform.openai.com/
-
-# 模型选择:
-# - gpt-4-turbo (推荐)
-# - gpt-4 (经典版本)
-# - gpt-3.5-turbo (经济型)
+# Recommended models: gpt-4-turbo | gpt-4 | gpt-3.5-turbo
 model = "gpt-4-turbo"
 
-# 温度参数 (0.0-1.0)
-temperature = 0.3
-
-# --------------------------------------------
-# Ollama Provider 配置（本地部署）
-# --------------------------------------------
+# Ollama Provider (local deployment)
 [llm.providers.ollama]
-# Ollama 服务端点（默认本地）
-# 启动 Ollama: ollama serve
+# Endpoint (ensure ollama serve is running)
 endpoint = "http://localhost:11434/api/generate"
-
-# 模型选择（需先拉取）:
-# - codellama:13b (推荐用于代码)
-# - llama2:7b (通用)
-# - mistral:7b (快速)
-# 拉取模型: ollama pull codellama:13b
+# Recommended models: codellama:13b | llama2:7b | mistral:7b
+# Pull model first: ollama pull codellama:13b
 model = "codellama:13b"
 
 # ============================================
-# Commit 行为配置
+# Commit Configuration
 # ============================================
 [commit]
-# 生成前是否显示 diff 预览
+# Enable diff preview and edit functionality
 show_diff_preview = true
-
-# 是否允许编辑生成的消息
-# 设为 false 或使用 --no-edit 跳过编辑器
 allow_edit = true
 
-# 提交前是否需要确认
-# 设为 false 或使用 --yes 自动确认
-confirm_before_commit = true
-
-# 自定义 commit message 生成的 prompt 模板（可选）
-# 可用占位符：{diff}, {files_changed}, {insertions}, {deletions}, {branch_name}, {branch_info}
-# 如果不设置，使用默认的英文 conventional commits 格式
-#
-# 中文示例：
+# Custom prompt (optional)
 # custom_prompt = """
-# 你是一个专业的软件工程师，正在审查 git diff 以生成简洁的中文提交信息。
-#
-# ## Git Diff:
-# {diff}
-#
-# ## 上下文:
-# - 修改的文件: {files_changed}
-# - 新增行数: {insertions}
-# - 删除行数: {deletions}
-# - 分支名称: {branch_name}
-#
-# ## 要求:
-# 1. 使用中文生成提交信息
-# 2. 第一行：类型(范围): 简要描述（不超过50字）
-# 3. 空一行
-# 4. 正文：说明改动的原因和影响
-#
-# 常见类型：feat（新功能）、fix（修复）、docs（文档）、refactor（重构）
-#
-# 只输出提交信息，不要解释。
+# You are a professional engineer generating conventional commits.
+# Format: type(scope): brief description
 # """
 
 # ============================================
-# Review 配置
+# Review Configuration
 # ============================================
 [review]
-# 审查时是否显示完整 diff
-show_full_diff = true
-
-# 最低显示的问题严重性
-# 可选值: "critical" | "warning" | "info"
-# - critical: 只显示严重问题
-# - warning: 显示警告及以上
-# - info: 显示所有问题（默认）
-min_severity = "info"  # critical | warning | info
-
-# 自定义 code review 的 prompt 模板（可选）
-# 可用占位符：{diff}
-# 如果不设置，使用默认的英文审查标准
-#
-# 中文示例：
-# custom_prompt = """
-# 你是一个资深代码审查专家。请仔细审查以下代码变更，重点关注安全性和性能。
-#
-# ## 代码变更:
-# {diff}
-#
-# ## 审查标准:
-# 1. **安全性**: 是否存在 SQL 注入、XSS、CSRF 等安全漏洞？
-# 2. **性能**: 是否有性能瓶颈或资源泄漏？
-# 3. **最佳实践**: 是否符合 Rust 最佳实践？
-#
-# ## 输出格式（必须是 JSON）:
-# {{
-#   "summary": "总体评估",
-#   "issues": [
-#     {{
-#       "severity": "critical" | "warning" | "info",
-#       "description": "问题描述",
-#       "file": "文件名（如适用）",
-#       "line": 行号（如适用）
-#     }}
-#   ],
-#   "suggestions": [
-#     "改进建议"
-#   ]
-# }}
-#
-# 如果没有发现问题，返回空的 issues 数组。
-# """
+# Minimum issue severity to display: "critical" | "warning" | "info"
+min_severity = "info"
 
 # ============================================
-# UI 配置
+# UI Configuration
 # ============================================
 [ui]
-# 是否启用彩色输出
-# 设为 false 适用于不支持彩色的终端或日志文件
+# Enable colored output
 colored = true
-
-# 是否显示详细信息
-# 等同于使用 --verbose 标志
+# Enable verbose logging
 verbose = false
 
 # ============================================
-# 自定义 Provider 示例
+# Custom Provider Example
 # ============================================
-# 你可以添加任意兼容 OpenAI 或 Claude API 的服务
-
-# DeepSeek API（OpenAI 兼容）
+# DeepSeek (OpenAI compatible)
 # [llm.providers.deepseek]
 # api_style = "openai"
 # endpoint = "https://api.deepseek.com/v1/chat/completions"
 # model = "deepseek-chat"
-# temperature = 0.3
-# # API key: export DEEPSEEK_API_KEY="sk-..."
-# # 使用: gcop --provider deepseek commit
-
-# Claude 中转服务（Claude API 兼容）
-# [llm.providers.claude-cch]
-# api_style = "claude"
-# endpoint = "https://cc.autobits.cc/v1/messages"
-# model = "claude-sonnet-4-5-20250929"
-# # API key: export CLAUDE_CCH_API_KEY="..."
-# # 使用: gcop --provider claude-cch commit
-
-# 通义千问（OpenAI 兼容）
-# [llm.providers.qwen]
-# api_style = "openai"
-# endpoint = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
-# model = "qwen-max"
-# # API key: export QWEN_API_KEY="sk-..."
-# # 使用: gcop --provider qwen commit
+# api_key = "your-deepseek-api-key-here"
+# # Usage: gcop --provider deepseek commit

@@ -1,0 +1,78 @@
+# gcop-rs 配置文件
+# 位置: ~/.config/gcop/config.toml
+#
+# ⚠️  包含 API key 敏感信息，请勿提交到 git！
+# 建议设置权限: chmod 600 ~/.config/gcop/config.toml
+
+# ============================================
+# LLM 配置
+# ============================================
+[llm]
+# 默认 provider: "claude" | "openai" | "ollama"
+default_provider = "claude"
+
+# Claude Provider
+[llm.providers.claude]
+# API key（或使用环境变量 ANTHROPIC_API_KEY）
+api_key = "sk-ant-api03-your-key-here"
+
+# 模型选择:
+# - claude-sonnet-4-5-20250929 (推荐，平衡性能和成本)
+# - claude-opus-4-5-20251101 (最强，适合复杂审查)
+model = "claude-sonnet-4-5-20250929"
+
+# OpenAI Provider
+[llm.providers.openai]
+# API key（或使用环境变量 OPENAI_API_KEY）
+api_key = "sk-your-openai-key-here"
+# 推荐模型: gpt-4-turbo | gpt-4 | gpt-3.5-turbo
+model = "gpt-4-turbo"
+
+# Ollama Provider（本地部署）
+[llm.providers.ollama]
+# 端点（确保 ollama serve 已启动）
+endpoint = "http://localhost:11434/api/generate"
+# 推荐模型: codellama:13b | llama2:7b | mistral:7b
+# 需先拉取: ollama pull codellama:13b
+model = "codellama:13b"
+
+# ============================================
+# Commit 配置
+# ============================================
+[commit]
+# 启用差异预览和编辑功能
+show_diff_preview = true
+allow_edit = true
+
+# 自定义 prompt（可选）
+# custom_prompt = """
+# 你是专业工程师，生成中文 conventional commits。
+# 格式: 类型(范围): 简要描述
+# """
+
+# ============================================
+# Review 配置
+# ============================================
+[review]
+# 最低显示问题严重性: "critical" | "warning" | "info"
+min_severity = "info"
+
+# ============================================
+# UI 配置
+# ============================================
+[ui]
+# 启用彩色输出
+colored = true
+# 启用详细日志
+verbose = false
+
+# ============================================
+# 自定义 Provider 示例
+# ============================================
+# DeepSeek (OpenAI 兼容)
+# [llm.providers.deepseek]
+# api_style = "openai"
+# endpoint = "https://api.deepseek.com/v1/chat/completions"
+# model = "deepseek-chat"
+# api_key = "your-deepseek-api-key-here"
+# # 使用: gcop --provider deepseek commit

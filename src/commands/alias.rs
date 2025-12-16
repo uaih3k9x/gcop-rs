@@ -2,7 +2,7 @@ use crate::error::{GcopError, Result};
 use crate::ui;
 use std::process::Command;
 
-// 完整的 git alias 列表（10 个，基于原项目）
+// 完整的 git alias 列表（11 个，基于原项目 + review）
 const GCOP_ALIASES: &[(&str, &str, &str)] = &[
     ("cop", "!gcop-rs", "Main entry point for gcop-rs"),
     (
@@ -11,6 +11,7 @@ const GCOP_ALIASES: &[(&str, &str, &str)] = &[
         "AI commit message and commit changes",
     ),
     ("c", "!gcop-rs commit", "Shorthand for 'git gcommit'"),
+    ("r", "!gcop-rs review", "AI review of uncommitted changes"),
     (
         "ac",
         "!git add -A && gcop-rs commit",
@@ -35,7 +36,7 @@ const GCOP_ALIASES: &[(&str, &str, &str)] = &[
     ),
     (
         "undo",
-        "!git reset HEAD~1",
+        "!git reset --soft HEAD^",
         "Undo last commit, keep changes staged",
     ),
 ];
@@ -60,10 +61,10 @@ pub fn install_all(force: bool, colored: bool) -> Result<()> {
     if !is_gcop_in_path() {
         ui::error("'gcop-rs' command not found in PATH", colored);
         println!();
-        println!("Install gcop-rs first:");
+        println!("{}", ui::info("Install gcop-rs first:", colored));
         println!("  sudo cp target/release/gcop-rs /usr/local/bin/gcop-rs");
         println!();
-        println!("Or add to PATH:");
+        println!("{}", ui::info("Or add to PATH:", colored));
         println!("  export PATH=\"$HOME/.local/bin:$PATH\"");
         return Err(GcopError::Config("gcop-rs not in PATH".to_string()));
     }
@@ -109,6 +110,7 @@ pub fn install_all(force: bool, colored: bool) -> Result<()> {
     println!();
     println!("\n{}", ui::info("Now you can use:", colored));
     println!("  git c        # AI commit");
+    println!("  git r        # AI review");
     println!("  git ac       # Add all and commit");
     println!("  git acp      # Add all, commit, and push");
     println!("  git gconfig  # Edit configuration");
@@ -208,7 +210,10 @@ fn add_git_alias(name: &str, command: &str) -> Result<()> {
 
 /// 列出所有可用的 aliases 及其状态
 fn list_aliases(colored: bool) -> Result<()> {
-    println!("{}", ui::info("Available git aliases for gcop-rs:", colored));
+    println!(
+        "{}",
+        ui::info("Available git aliases for gcop-rs:", colored)
+    );
     println!();
 
     for (name, command, description) in GCOP_ALIASES {
@@ -231,17 +236,35 @@ fn list_aliases(colored: bool) -> Result<()> {
                     msg
                 }
             }
-            None => "  not installed".to_string(),
+            None => {
+                if colored {
+                    use colored::Colorize;
+                    "  not installed".dimmed().to_string()
+                } else {
+                    "  not installed".to_string()
+                }
+            }
         };
 
-        println!("  git {:10} → {:45} [{}]", name, description, status);
+        if colored {
+            use colored::Colorize;
+            println!("  git {:10} → {:45} [{}]", name.bold(), description, status);
+        } else {
+            println!("  git {:10} → {:45} [{}]", name, description, status);
+        }
     }
 
     println!();
-    println!("{}", ui::info("Run 'gcop-rs alias' to install all.", colored));
     println!(
         "{}",
-        ui::info("Run 'gcop-rs alias --force' to overwrite conflicts.", colored)
+        ui::info("Run 'gcop-rs alias' to install all.", colored)
+    );
+    println!(
+        "{}",
+        ui::info(
+            "Run 'gcop-rs alias --force' to overwrite conflicts.",
+            colored
+        )
     );
 
     Ok(())
@@ -255,7 +278,12 @@ fn remove_aliases(force: bool, colored: bool) -> Result<()> {
         println!("{}", ui::info("Aliases to be removed:", colored));
         for (name, _, _) in GCOP_ALIASES {
             if get_git_alias(name)?.is_some() {
-                println!("  - git {}", name);
+                if colored {
+                    use colored::Colorize;
+                    println!("  - git {}", name.bold());
+                } else {
+                    println!("  - git {}", name);
+                }
             }
         }
         println!();

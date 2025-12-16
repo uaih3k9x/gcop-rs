@@ -42,7 +42,8 @@ const DEFAULT_REVIEW_PROMPT: &str = r#"You are an expert code reviewer. Review t
 5. **Best Practices**: Does it follow best practices?
 
 ## Output Format:
-Provide your review in JSON format:
+Provide your review in JSON format
+Do not include any explanations outside the JSON structure. Format as follows:
 {{
   "summary": "Brief overall assessment",
   "issues": [
