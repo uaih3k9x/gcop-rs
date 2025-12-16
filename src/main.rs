@@ -99,6 +99,34 @@ fn main() -> Result<()> {
                 }
                 Ok(())
             }
+            Commands::Init { force } => {
+                if let Err(e) = commands::init::run(force, config.ui.colored) {
+                    ui::error(&format!("Error: {}", e), config.ui.colored);
+                    if let Some(suggestion) = e.suggestion() {
+                        println!();
+                        println!(
+                            "{}",
+                            ui::info(&format!("Tip: {}", suggestion), config.ui.colored)
+                        );
+                    }
+                    std::process::exit(1);
+                }
+                Ok(())
+            }
+            Commands::Config { action } => {
+                if let Err(e) = commands::config::run(action, config.ui.colored).await {
+                    ui::error(&format!("Error: {}", e), config.ui.colored);
+                    if let Some(suggestion) = e.suggestion() {
+                        println!();
+                        println!(
+                            "{}",
+                            ui::info(&format!("Tip: {}", suggestion), config.ui.colored)
+                        );
+                    }
+                    std::process::exit(1);
+                }
+                Ok(())
+            }
         }
     })
 }

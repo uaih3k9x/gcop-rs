@@ -39,6 +39,19 @@ pub enum Commands {
         #[arg(short, long, default_value = "text")]
         format: String,
     },
+
+    /// Initialize configuration file
+    Init {
+        /// Force overwrite existing config
+        #[arg(short, long)]
+        force: bool,
+    },
+
+    /// Manage configuration
+    Config {
+        #[command(subcommand)]
+        action: Option<ConfigAction>,
+    },
 }
 
 #[derive(Subcommand)]
@@ -63,4 +76,13 @@ pub enum ReviewTarget {
         /// Path to file or directory
         path: String,
     },
+}
+
+#[derive(Subcommand)]
+pub enum ConfigAction {
+    /// Edit configuration file
+    Edit,
+
+    /// Validate configuration and test provider connection
+    Validate,
 }
