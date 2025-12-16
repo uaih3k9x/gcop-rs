@@ -21,19 +21,29 @@ pub fn create_provider(
         .get(name)
         .ok_or_else(|| GcopError::Config(format!("Provider '{}' not found in config", name)))?;
 
-    match name {
+    // 决定使用哪种 API 风格
+    // 优先使用 api_style 字段，否则使用 provider 名称（向后兼容）
+    let api_style = provider_config
+        .api_style.as_deref()
+        .unwrap_or(name);
+
+    // 根据 API 风格创建对应的 Provider 实现
+    match api_style {
         "claude" => {
-            let provider = claude::ClaudeProvider::new(provider_config)?;
+            let provider = claude::ClaudeProvider::new(provider_config, name)?;
             Ok(Arc::new(provider))
         }
         "openai" => {
-            let provider = openai::OpenAIProvider::new(provider_config)?;
+            let provider = openai::OpenAIProvider::new(provider_config, name)?;
             Ok(Arc::new(provider))
         }
         "ollama" => {
-            let provider = ollama::OllamaProvider::new(provider_config)?;
+            let provider = ollama::OllamaProvider::new(provider_config, name)?;
             Ok(Arc::new(provider))
         }
-        _ => Err(GcopError::Config(format!("Unsupported provider: {}", name))),
+        _ => Err(GcopError::Config(format!(
+            "Unsupported api_style: '{}' for provider '{}'",
+            api_style, name
+        ))),
     }
 }

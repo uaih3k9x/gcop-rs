@@ -28,6 +28,12 @@ pub struct LLMConfig {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ProviderConfig {
+    /// API 风格: "claude" | "openai" | "ollama"
+    /// 用于指定使用哪种 API 实现
+    /// 如果未指定，将使用 provider 名称作为 api_style
+    #[serde(default)]
+    pub api_style: Option<String>,
+
     /// API endpoint
     pub endpoint: Option<String>,
 

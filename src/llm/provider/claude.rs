@@ -43,17 +43,27 @@ struct ContentBlock {
 }
 
 impl ClaudeProvider {
-    pub fn new(config: &ProviderConfig) -> Result<Self> {
-        // 从配置或环境变量获取 API key
+    pub fn new(config: &ProviderConfig, provider_name: &str) -> Result<Self> {
+        // API key 读取顺序：
+        // 1. 配置文件中的 api_key
+        // 2. {PROVIDER_NAME}_API_KEY 环境变量（如 CLAUDE_CCH_API_KEY）
+        // 3. ANTHROPIC_API_KEY 环境变量（默认）
         let api_key = config
             .api_key
             .clone()
+            .or_else(|| {
+                let env_var = format!(
+                    "{}_API_KEY",
+                    provider_name.to_uppercase().replace("-", "_")
+                );
+                std::env::var(&env_var).ok()
+            })
             .or_else(|| std::env::var("ANTHROPIC_API_KEY").ok())
             .ok_or_else(|| {
-                GcopError::Config(
-                    "Claude API key not found. Set ANTHROPIC_API_KEY or configure in config.toml"
-                        .to_string(),
-                )
+                GcopError::Config(format!(
+                    "Claude API key not found. Set {}_API_KEY or ANTHROPIC_API_KEY or configure in config.toml",
+                    provider_name.to_uppercase().replace("-", "_")
+                ))
             })?;
 
         let endpoint = config

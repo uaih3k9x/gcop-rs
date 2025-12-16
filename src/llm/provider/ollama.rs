@@ -37,8 +37,9 @@ struct OllamaResponse {
 }
 
 impl OllamaProvider {
-    pub fn new(config: &ProviderConfig) -> Result<Self> {
+    pub fn new(config: &ProviderConfig, _provider_name: &str) -> Result<Self> {
         // Ollama 本地部署，无需 API key
+        // provider_name 参数保留用于统一接口
         let endpoint = config
             .endpoint
             .clone()

@@ -120,3 +120,33 @@ colored = true
 # 是否显示详细信息
 # 等同于使用 --verbose 标志
 verbose = false
+
+# ============================================
+# 自定义 Provider 示例
+# ============================================
+# 你可以添加任意兼容 OpenAI 或 Claude API 的服务
+
+# DeepSeek API（OpenAI 兼容）
+# [llm.providers.deepseek]
+# api_style = "openai"
+# endpoint = "https://api.deepseek.com/v1/chat/completions"
+# model = "deepseek-chat"
+# temperature = 0.3
+# # API key: export DEEPSEEK_API_KEY="sk-..."
+# # 使用: gcop --provider deepseek commit
+
+# Claude 中转服务（Claude API 兼容）
+# [llm.providers.claude-cch]
+# api_style = "claude"
+# endpoint = "https://cc.autobits.cc/v1/messages"
+# model = "claude-sonnet-4-5-20250929"
+# # API key: export CLAUDE_CCH_API_KEY="..."
+# # 使用: gcop --provider claude-cch commit
+
+# 通义千问（OpenAI 兼容）
+# [llm.providers.qwen]
+# api_style = "openai"
+# endpoint = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+# model = "qwen-max"
+# # API key: export QWEN_API_KEY="sk-..."
+# # 使用: gcop --provider qwen commit
