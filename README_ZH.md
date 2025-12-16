@@ -27,7 +27,7 @@ cd gcop-rs
 cargo build --release
 
 # 复制到 PATH
-sudo cp target/release/gcop-rs /usr/local/bin/gcop
+sudo cp target/release/gcop-rs /usr/local/bin/gcop-rs
 ```
 
 详见 [docs/zh/installation.md](docs/zh/installation.md)。
@@ -57,40 +57,40 @@ export ANTHROPIC_API_KEY="sk-ant-your-key"
 ```bash
 # 生成提交信息
 git add .
-gcop commit
+gcop-rs commit
 
 # 审查未提交的变更
-gcop review changes
+gcop-rs review changes
 
 # 审查特定 commit
-gcop review commit abc123
+gcop-rs review commit abc123
 
 # 使用不同的 provider
-gcop --provider openai commit
+gcop-rs --provider openai commit
 ```
 
 ## 命令说明
 
-### `gcop commit`
+### `gcop-rs commit`
 
 为暂存的变更生成提交信息。
 
 ```bash
-gcop commit              # 生成、编辑并提交
-gcop commit --no-edit    # 跳过编辑器
-gcop commit --yes        # 跳过确认
-gcop -v commit           # 详细模式
+gcop-rs commit              # 生成、编辑并提交
+gcop-rs commit --no-edit    # 跳过编辑器
+gcop-rs commit --yes        # 跳过确认
+gcop-rs -v commit           # 详细模式
 ```
 
-### `gcop review`
+### `gcop-rs review`
 
 使用 AI 审查代码变更。
 
 ```bash
-gcop review changes           # 审查未提交的变更
-gcop review commit <hash>     # 审查某个 commit
-gcop review range main..dev   # 审查 commit 范围
-gcop review file src/main.rs  # 审查某个文件
+gcop-rs review changes           # 审查未提交的变更
+gcop-rs review commit <hash>     # 审查某个 commit
+gcop-rs review range main..dev   # 审查 commit 范围
+gcop-rs review file src/main.rs  # 审查某个文件
 ```
 
 **输出格式**: `--format text|json|markdown`
@@ -159,7 +159,7 @@ custom_prompt = """
 使用 `--verbose` 查看详细日志：
 
 ```bash
-gcop -v commit  # 显示 API 请求、响应和 prompts
+gcop-rs -v commit  # 显示 API 请求、响应和 prompts
 ```
 
 ## 文档
@@ -186,4 +186,4 @@ AptS-1547 <apts-1547@esaps.net>
 
 ---
 
-**提示**: 运行 `gcop commit --help` 或 `gcop review --help` 查看更多选项。
+**提示**: 运行 `gcop-rs commit --help` 或 `gcop-rs review --help` 查看更多选项。

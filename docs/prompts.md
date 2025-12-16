@@ -138,7 +138,7 @@ For code review, always request JSON format to ensure proper parsing.
 
 ### 3. Test with Verbose Mode
 
-Use `gcop -v commit` to see the actual prompt sent to AI.
+Use `gcop-rs -v commit` to see the actual prompt sent to AI.
 
 ### 4. Iterate
 

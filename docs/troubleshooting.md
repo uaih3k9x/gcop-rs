@@ -21,7 +21,7 @@ cargo build --release
 **Solution**:
 ```bash
 # Check if binary exists
-ls -la /usr/local/bin/gcop
+ls -la /usr/local/bin/gcop-rs
 
 # Verify PATH includes /usr/local/bin
 echo $PATH
@@ -111,7 +111,7 @@ export ANTHROPIC_API_KEY="sk-ant-your-key"
 **Solution**:
 ```bash
 # Use verbose mode to see raw response
-gcop -v commit
+gcop-rs -v commit
 
 # Check the response in debug output
 # Look for "Claude API response body:" or "OpenAI API response body:"
@@ -127,7 +127,7 @@ gcop -v commit
 
 1. **Use verbose mode** to see raw response:
    ```bash
-   gcop -v review changes
+   gcop-rs -v review changes
    ```
 
 2. **Check your custom prompt** (if using one):
@@ -137,7 +137,7 @@ gcop -v commit
 3. **Try different model**:
    ```bash
    # Some models handle JSON better
-   gcop --provider openai review changes
+   gcop-rs --provider openai review changes
    ```
 
 4. **Adjust temperature**:
@@ -160,7 +160,7 @@ git add <files>
 git add .
 
 # Then run gcop
-gcop commit
+gcop-rs commit
 ```
 
 ### Issue: "Not a git repository"
@@ -181,8 +181,8 @@ cd /path/to/your/git/repo
 For any issue, enable verbose mode to get detailed information:
 
 ```bash
-gcop -v commit
-gcop -v review changes
+gcop-rs -v commit
+gcop-rs -v review changes
 ```
 
 This shows:
@@ -202,7 +202,7 @@ If you encounter an issue not listed here:
    - Your config file (remove API keys!)
    - Command you ran
    - Error message
-   - Output from `gcop -v` (remove sensitive info)
+   - Output from `gcop-rs -v` (remove sensitive info)
 
 ## See Also
 

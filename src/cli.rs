@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[command(name = "gcop")]
+#[command(name = "gcop-rs")]
 #[command(author, version, about = "Git Copilot in Rust", long_about = None)]
 pub struct Cli {
     #[command(subcommand)]
@@ -40,11 +40,10 @@ pub enum Commands {
         format: String,
     },
 
-    /// Initialize configuration file
+    /// Initialize gcop-rs
     Init {
-        /// Force overwrite existing config
-        #[arg(short, long)]
-        force: bool,
+        #[command(subcommand)]
+        action: Option<InitAction>,
     },
 
     /// Manage configuration
@@ -75,6 +74,23 @@ pub enum ReviewTarget {
     File {
         /// Path to file or directory
         path: String,
+    },
+}
+
+#[derive(Subcommand)]
+pub enum InitAction {
+    /// Initialize configuration file
+    Config {
+        /// Force overwrite existing config
+        #[arg(short, long)]
+        force: bool,
+    },
+
+    /// Add git alias for 'git cop'
+    Alias {
+        /// Force overwrite existing alias
+        #[arg(short, long)]
+        force: bool,
     },
 }
 

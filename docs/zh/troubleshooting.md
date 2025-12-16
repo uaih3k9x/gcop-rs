@@ -21,7 +21,7 @@ cargo build --release
 **解决方案**:
 ```bash
 # 检查二进制文件是否存在
-ls -la /usr/local/bin/gcop
+ls -la /usr/local/bin/gcop-rs
 
 # 验证 PATH 包含 /usr/local/bin
 echo $PATH
@@ -111,7 +111,7 @@ export ANTHROPIC_API_KEY="sk-ant-your-key"
 **解决方案**:
 ```bash
 # 使用详细模式查看原始响应
-gcop -v commit
+gcop-rs -v commit
 
 # 在调试输出中查找
 # 查找 "Claude API response body:" 或 "OpenAI API response body:"
@@ -127,7 +127,7 @@ gcop -v commit
 
 1. **使用详细模式**查看原始响应：
    ```bash
-   gcop -v review changes
+   gcop-rs -v review changes
    ```
 
 2. **检查自定义 prompt**（如果使用）：
@@ -137,7 +137,7 @@ gcop -v commit
 3. **尝试不同模型**：
    ```bash
    # 某些模型处理 JSON 更好
-   gcop --provider openai review changes
+   gcop-rs --provider openai review changes
    ```
 
 4. **调整 temperature**：
@@ -160,7 +160,7 @@ git add <files>
 git add .
 
 # 然后运行 gcop
-gcop commit
+gcop-rs commit
 ```
 
 ### 问题: "Not a git repository"
@@ -181,8 +181,8 @@ cd /path/to/your/git/repo
 对于任何问题，启用详细模式获取详细信息：
 
 ```bash
-gcop -v commit
-gcop -v review changes
+gcop-rs -v commit
+gcop-rs -v review changes
 ```
 
 这会显示：
@@ -202,7 +202,7 @@ gcop -v review changes
    - 你的配置文件（删除 API keys！）
    - 运行的命令
    - 错误信息
-   - `gcop -v` 的输出（删除敏感信息）
+   - `gcop-rs -v` 的输出（删除敏感信息）
 
 ## 参考
 

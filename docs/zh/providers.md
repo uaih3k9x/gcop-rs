@@ -124,8 +124,8 @@ model = "custom-model"
 
 ```bash
 # 为单个命令使用不同的 provider
-gcop --provider openai commit
-gcop --provider deepseek review changes
+gcop-rs --provider openai commit
+gcop-rs --provider deepseek review changes
 ```
 
 ### 修改默认值

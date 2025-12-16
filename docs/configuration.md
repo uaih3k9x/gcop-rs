@@ -156,10 +156,10 @@ export OPENAI_API_KEY="sk-your-openai-key"
 
 ```bash
 # Override provider
-gcop --provider openai commit
+gcop-rs --provider openai commit
 
 # Enable verbose mode
-gcop -v commit
+gcop-rs -v commit
 ```
 
 Command-line options override configuration file.

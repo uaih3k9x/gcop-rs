@@ -25,7 +25,7 @@ fn edit(colored: bool) -> Result<()> {
     if !config_file.exists() {
         ui::error("Config file not found", colored);
         println!();
-        println!("Run 'gcop init' to create it, or create manually:");
+        println!("Run 'gcop-rs init' to create it, or create manually:");
         println!("  mkdir -p {}", config_dir.display());
         println!(
             "  cp examples/config.toml.example {}",

@@ -99,8 +99,8 @@ fn main() -> Result<()> {
                 }
                 Ok(())
             }
-            Commands::Init { force } => {
-                if let Err(e) = commands::init::run(force, config.ui.colored) {
+            Commands::Init { action } => {
+                if let Err(e) = commands::init::run(action, config.ui.colored) {
                     ui::error(&format!("Error: {}", e), config.ui.colored);
                     if let Some(suggestion) = e.suggestion() {
                         println!();

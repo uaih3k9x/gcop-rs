@@ -138,7 +138,7 @@ custom_prompt = """
 
 ### 3. 使用详细模式测试
 
-使用 `gcop -v commit` 查看实际发送给 AI 的 prompt。
+使用 `gcop-rs -v commit` 查看实际发送给 AI 的 prompt。
 
 ### 4. 迭代优化
 

@@ -34,7 +34,7 @@ The binary will be at:
 **Option A: System-wide installation**
 
 ```bash
-sudo cp target/release/gcop-rs /usr/local/bin/gcop
+sudo cp target/release/gcop-rs /usr/local/bin/gcop-rs
 ```
 
 **Option B: User installation**
@@ -56,10 +56,10 @@ cargo install --path .
 ### 4. Verify Installation
 
 ```bash
-gcop --version
+gcop-rs --version
 # Should output: gcop-rs 0.1.0
 
-gcop --help
+gcop-rs --help
 # Should show help information
 ```
 
@@ -69,14 +69,14 @@ gcop --help
 cd gcop-rs
 git pull
 cargo build --release
-sudo cp target/release/gcop-rs /usr/local/bin/gcop
+sudo cp target/release/gcop-rs /usr/local/bin/gcop-rs
 ```
 
 ## Uninstall
 
 ```bash
 # If installed to /usr/local/bin
-sudo rm /usr/local/bin/gcop
+sudo rm /usr/local/bin/gcop-rs
 
 # If installed via cargo
 cargo uninstall gcop-rs

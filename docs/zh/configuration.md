@@ -156,10 +156,10 @@ export OPENAI_API_KEY="sk-your-openai-key"
 
 ```bash
 # 覆盖 provider
-gcop --provider openai commit
+gcop-rs --provider openai commit
 
 # 启用详细模式
-gcop -v commit
+gcop-rs -v commit
 ```
 
 命令行选项优先级高于配置文件。

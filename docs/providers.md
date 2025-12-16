@@ -124,8 +124,8 @@ If `api_style` is not specified, it defaults to the provider name (for backward 
 
 ```bash
 # Use different provider for one command
-gcop --provider openai commit
-gcop --provider deepseek review changes
+gcop-rs --provider openai commit
+gcop-rs --provider deepseek review changes
 ```
 
 ### Changing Default

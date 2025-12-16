@@ -27,7 +27,7 @@ cd gcop-rs
 cargo build --release
 
 # Copy to PATH
-sudo cp target/release/gcop-rs /usr/local/bin/gcop
+sudo cp target/release/gcop-rs /usr/local/bin/gcop-rs
 ```
 
 See [docs/installation.md](docs/installation.md) for more options.
@@ -57,40 +57,40 @@ See [docs/configuration.md](docs/configuration.md) for all options.
 ```bash
 # Generate commit message
 git add .
-gcop commit
+gcop-rs commit
 
 # Review uncommitted changes
-gcop review changes
+gcop-rs review changes
 
 # Review a specific commit
-gcop review commit abc123
+gcop-rs review commit abc123
 
 # Use different provider
-gcop --provider openai commit
+gcop-rs --provider openai commit
 ```
 
 ## Commands
 
-### `gcop commit`
+### `gcop-rs commit`
 
 Generate commit message for staged changes.
 
 ```bash
-gcop commit              # Generate, edit, and commit
-gcop commit --no-edit    # Skip editor
-gcop commit --yes        # Skip confirmation
-gcop -v commit           # Verbose mode
+gcop-rs commit              # Generate, edit, and commit
+gcop-rs commit --no-edit    # Skip editor
+gcop-rs commit --yes        # Skip confirmation
+gcop-rs -v commit           # Verbose mode
 ```
 
-### `gcop review`
+### `gcop-rs review`
 
 Review code changes with AI.
 
 ```bash
-gcop review changes           # Review uncommitted changes
-gcop review commit <hash>     # Review a commit
-gcop review range main..dev   # Review commit range
-gcop review file src/main.rs  # Review a file
+gcop-rs review changes           # Review uncommitted changes
+gcop-rs review commit <hash>     # Review a commit
+gcop-rs review range main..dev   # Review commit range
+gcop-rs review file src/main.rs  # Review a file
 ```
 
 **Output formats**: `--format text|json|markdown`
@@ -159,7 +159,7 @@ See [docs/prompts.md](docs/prompts.md) for template variables and examples.
 Use `--verbose` to see detailed logs:
 
 ```bash
-gcop -v commit  # Shows API requests, responses, and prompts
+gcop-rs -v commit  # Shows API requests, responses, and prompts
 ```
 
 ## Documentation
@@ -186,4 +186,4 @@ AptS-1547 <apts-1547@esaps.net>
 
 ---
 
-**Tip**: Run `gcop commit --help` or `gcop review --help` for more options.
+**Tip**: Run `gcop-rs commit --help` or `gcop-rs review --help` for more options.

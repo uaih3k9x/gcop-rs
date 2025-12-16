@@ -34,7 +34,7 @@ cargo build
 **选项 A: 系统全局安装**
 
 ```bash
-sudo cp target/release/gcop-rs /usr/local/bin/gcop
+sudo cp target/release/gcop-rs /usr/local/bin/gcop-rs
 ```
 
 **选项 B: 用户安装**
@@ -56,10 +56,10 @@ cargo install --path .
 ### 4. 验证安装
 
 ```bash
-gcop --version
+gcop-rs --version
 # 应该输出: gcop-rs 0.1.0
 
-gcop --help
+gcop-rs --help
 # 应该显示帮助信息
 ```
 
@@ -69,14 +69,14 @@ gcop --help
 cd gcop-rs
 git pull
 cargo build --release
-sudo cp target/release/gcop-rs /usr/local/bin/gcop
+sudo cp target/release/gcop-rs /usr/local/bin/gcop-rs
 ```
 
 ## 卸载
 
 ```bash
 # 如果安装到 /usr/local/bin
-sudo rm /usr/local/bin/gcop
+sudo rm /usr/local/bin/gcop-rs
 
 # 如果通过 cargo 安装
 cargo uninstall gcop-rs
