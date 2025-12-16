@@ -25,25 +25,27 @@ jobs:
         id: get_version
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - name: Extract changelog
-        id: changelog
+      - name: Read release notes
+        id: release_notes
         run: |
           VERSION=${{ steps.get_version.outputs.version }}
-          # Extract changelog for this version
-          awk '/^## \['"$VERSION"'\]/, /^## \[/ {print}' CHANGELOG.md | sed '1d;$d' > release_notes.txt
-          if [ ! -s release_notes.txt ]; then
-            echo "Release $VERSION" > release_notes.txt
+          NOTES_FILE="docs/release-notes/v${VERSION}.md"
+          if [ -f "$NOTES_FILE" ]; then
+            {
+              echo "body<<EOF"
+              cat "$NOTES_FILE"
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
+          else
+            echo "body=Release v${VERSION}" >> $GITHUB_OUTPUT
           fi
-          echo "notes<<EOF" >> $GITHUB_OUTPUT
-          cat release_notes.txt >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
           name: Release ${{ steps.get_version.outputs.version }}
-          body: ${{ steps.changelog.outputs.notes }}
+          body: ${{ steps.release_notes.outputs.body }}
           draft: false
           prerelease: false
 
