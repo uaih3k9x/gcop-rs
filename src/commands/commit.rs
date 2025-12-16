@@ -87,7 +87,7 @@ pub async fn run(cli: &Cli, config: &AppConfig, no_edit: bool, yes: bool) -> Res
         // 显示交互式菜单
         ui::step("3/4", "Choose next action...", colored);
 
-        let action = ui::commit_action_menu(&message, should_edit, retry_count)?;
+        let action = ui::commit_action_menu(&message, should_edit, retry_count, colored)?;
 
         match action {
             ui::CommitAction::Accept => {

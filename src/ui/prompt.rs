@@ -1,3 +1,4 @@
+use colored::Colorize;
 use dialoguer::{Confirm, Input, Select};
 
 use crate::error::{GcopError, Result};
@@ -26,23 +27,68 @@ pub fn commit_action_menu(
     _message: &str,
     allow_edit: bool,
     retry_count: usize,
+    colored: bool,
 ) -> Result<CommitAction> {
     // 构建选项列表
-    let mut options = vec!["✓ Accept - Use this commit message"];
+    let mut options = Vec::new();
 
-    if allow_edit {
-        options.push("✎ Edit - Manually edit the message");
+    if colored {
+        // 彩色版本
+        options.push(format!(
+            "{} {}",
+            "✓".green().bold(),
+            "Accept - Use this commit message".green()
+        ));
+
+        if allow_edit {
+            options.push(format!(
+                "{} {}",
+                "✎".yellow().bold(),
+                "Edit - Manually edit the message".yellow()
+            ));
+        }
+
+        options.push(format!(
+            "{} {}",
+            "↻".blue().bold(),
+            "Retry - Regenerate".blue()
+        ));
+
+        options.push(format!(
+            "{} {}",
+            "↻+".blue().bold(),
+            "Retry with feedback - Regenerate with instructions".blue()
+        ));
+
+        options.push(format!(
+            "{} {}",
+            "✕".red().bold(),
+            "Quit - Cancel commit".red()
+        ));
+    } else {
+        // 纯文本版本（保持原样）
+        options.push("✓ Accept - Use this commit message".to_string());
+
+        if allow_edit {
+            options.push("✎ Edit - Manually edit the message".to_string());
+        }
+
+        options.push("↻ Retry - Regenerate".to_string());
+        options.push("↻+ Retry with feedback - Regenerate with instructions".to_string());
+        options.push("✕ Quit - Cancel commit".to_string());
     }
 
-    options.push("↻ Retry - Regenerate");
-    options.push("↻+ Retry with feedback - Regenerate with instructions");
-    options.push("✕ Quit - Cancel commit");
-
     // 根据重试次数调整提示文字
-    let prompt = if retry_count == 0 {
-        "Choose next action:"
+    let prompt = if colored {
+        if retry_count == 0 {
+            format!("{}", "Choose next action:".cyan().bold())
+        } else {
+            format!("{}", "Not satisfied? Choose again:".cyan().bold())
+        }
+    } else if retry_count == 0 {
+        "Choose next action:".to_string()
     } else {
-        "Not satisfied? Choose again:"
+        "Not satisfied? Choose again:".to_string()
     };
 
     let selection = Select::new()
