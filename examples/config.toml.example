@@ -95,6 +95,34 @@ allow_edit = true
 # 设为 false 或使用 --yes 自动确认
 confirm_before_commit = true
 
+# 自定义 commit message 生成的 prompt 模板（可选）
+# 可用占位符：{diff}, {files_changed}, {insertions}, {deletions}, {branch_name}, {branch_info}
+# 如果不设置，使用默认的英文 conventional commits 格式
+#
+# 中文示例：
+# custom_prompt = """
+# 你是一个专业的软件工程师，正在审查 git diff 以生成简洁的中文提交信息。
+#
+# ## Git Diff:
+# {diff}
+#
+# ## 上下文:
+# - 修改的文件: {files_changed}
+# - 新增行数: {insertions}
+# - 删除行数: {deletions}
+# - 分支名称: {branch_name}
+#
+# ## 要求:
+# 1. 使用中文生成提交信息
+# 2. 第一行：类型(范围): 简要描述（不超过50字）
+# 3. 空一行
+# 4. 正文：说明改动的原因和影响
+#
+# 常见类型：feat（新功能）、fix（修复）、docs（文档）、refactor（重构）
+#
+# 只输出提交信息，不要解释。
+# """
+
 # ============================================
 # Review 配置
 # ============================================
@@ -108,6 +136,41 @@ show_full_diff = true
 # - warning: 显示警告及以上
 # - info: 显示所有问题（默认）
 min_severity = "info"  # critical | warning | info
+
+# 自定义 code review 的 prompt 模板（可选）
+# 可用占位符：{diff}
+# 如果不设置，使用默认的英文审查标准
+#
+# 中文示例：
+# custom_prompt = """
+# 你是一个资深代码审查专家。请仔细审查以下代码变更，重点关注安全性和性能。
+#
+# ## 代码变更:
+# {diff}
+#
+# ## 审查标准:
+# 1. **安全性**: 是否存在 SQL 注入、XSS、CSRF 等安全漏洞？
+# 2. **性能**: 是否有性能瓶颈或资源泄漏？
+# 3. **最佳实践**: 是否符合 Rust 最佳实践？
+#
+# ## 输出格式（必须是 JSON）:
+# {{
+#   "summary": "总体评估",
+#   "issues": [
+#     {{
+#       "severity": "critical" | "warning" | "info",
+#       "description": "问题描述",
+#       "file": "文件名（如适用）",
+#       "line": 行号（如适用）
+#     }}
+#   ],
+#   "suggestions": [
+#     "改进建议"
+#   ]
+# }}
+#
+# 如果没有发现问题，返回空的 issues 数组。
+# """
 
 # ============================================
 # UI 配置

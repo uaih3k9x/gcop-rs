@@ -1,20 +1,18 @@
 use crate::llm::{CommitContext, ReviewType};
 
-/// 构建 commit message 生成的 prompt
-pub fn build_commit_prompt(diff: &str, context: &CommitContext) -> String {
-    format!(
-        r#"You are an expert software engineer reviewing a git diff to generate a concise, informative commit message.
+/// 默认的 commit prompt 模板
+const DEFAULT_COMMIT_PROMPT: &str = r#"You are an expert software engineer reviewing a git diff to generate a concise, informative commit message.
 
 ## Git Diff:
 ```
-{}
+{diff}
 ```
 
 ## Context:
-- Files changed: {}
-- Insertions: {}
-- Deletions: {}
-{}
+- Files changed: {files_changed}
+- Insertions: {insertions}
+- Deletions: {deletions}
+{branch_info}
 
 ## Instructions:
 1. Analyze the changes carefully
@@ -26,23 +24,10 @@ pub fn build_commit_prompt(diff: &str, context: &CommitContext) -> String {
 
 Common types: feat, fix, docs, style, refactor, test, chore
 
-Output only the commit message, no explanations."#,
-        diff,
-        context.files_changed.join(", "),
-        context.insertions,
-        context.deletions,
-        context
-            .branch_name
-            .as_ref()
-            .map(|b| format!("- Branch: {}", b))
-            .unwrap_or_default()
-    )
-}
+Output only the commit message, no explanations."#;
 
-/// 构建代码审查的 prompt
-pub fn build_review_prompt(diff: &str, _review_type: &ReviewType) -> String {
-    format!(
-        r#"You are an expert code reviewer. Review the following code changes carefully.
+/// 默认的 review prompt 模板
+const DEFAULT_REVIEW_PROMPT: &str = r#"You are an expert code reviewer. Review the following code changes carefully.
 
 ## Code to Review:
 ```
@@ -73,6 +58,41 @@ Provide your review in JSON format:
   ]
 }}
 
-If no issues found, return empty issues array but provide constructive suggestions."#
-    )
+If no issues found, return empty issues array but provide constructive suggestions."#;
+
+/// 构建 commit message 生成的 prompt
+pub fn build_commit_prompt(
+    diff: &str,
+    context: &CommitContext,
+    custom_template: Option<&str>,
+) -> String {
+    let template = custom_template.unwrap_or(DEFAULT_COMMIT_PROMPT);
+
+    let branch_info = context
+        .branch_name
+        .as_ref()
+        .map(|b| format!("- Branch: {}", b))
+        .unwrap_or_default();
+
+    template
+        .replace("{diff}", diff)
+        .replace("{files_changed}", &context.files_changed.join(", "))
+        .replace("{insertions}", &context.insertions.to_string())
+        .replace("{deletions}", &context.deletions.to_string())
+        .replace(
+            "{branch_name}",
+            context.branch_name.as_deref().unwrap_or(""),
+        )
+        .replace("{branch_info}", &branch_info)
+}
+
+/// 构建代码审查的 prompt
+pub fn build_review_prompt(
+    diff: &str,
+    _review_type: &ReviewType,
+    custom_template: Option<&str>,
+) -> String {
+    let template = custom_template.unwrap_or(DEFAULT_REVIEW_PROMPT);
+
+    template.replace("{diff}", diff)
 }

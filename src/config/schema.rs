@@ -61,6 +61,11 @@ pub struct CommitConfig {
     /// 提交前是否需要确认
     #[serde(default = "default_true")]
     pub confirm_before_commit: bool,
+
+    /// 自定义 commit message 生成的 prompt 模板
+    /// 可用占位符：{diff}, {files_changed}, {insertions}, {deletions}, {branch_name}
+    #[serde(default)]
+    pub custom_prompt: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -72,6 +77,11 @@ pub struct ReviewConfig {
     /// 最低显示的问题严重性
     #[serde(default = "default_severity")]
     pub min_severity: String,
+
+    /// 自定义 code review 的 prompt 模板
+    /// 可用占位符：{diff}
+    #[serde(default)]
+    pub custom_prompt: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -108,6 +118,7 @@ impl Default for CommitConfig {
             show_diff_preview: true,
             allow_edit: true,
             confirm_before_commit: true,
+            custom_prompt: None,
         }
     }
 }
@@ -117,6 +128,7 @@ impl Default for ReviewConfig {
         Self {
             show_full_diff: true,
             min_severity: "info".to_string(),
+            custom_prompt: None,
         }
     }
 }

@@ -171,9 +171,11 @@ impl LLMProvider for OpenAIProvider {
             insertions: 0,
             deletions: 0,
             branch_name: None,
+            custom_prompt: None,
         });
 
-        let prompt = crate::llm::prompt::build_commit_prompt(diff, &ctx);
+        let prompt =
+            crate::llm::prompt::build_commit_prompt(diff, &ctx, ctx.custom_prompt.as_deref());
 
         tracing::debug!(
             "Commit message generation prompt length: {} chars",
@@ -187,8 +189,13 @@ impl LLMProvider for OpenAIProvider {
         Ok(response)
     }
 
-    async fn review_code(&self, diff: &str, review_type: ReviewType) -> Result<ReviewResult> {
-        let prompt = crate::llm::prompt::build_review_prompt(diff, &review_type);
+    async fn review_code(
+        &self,
+        diff: &str,
+        review_type: ReviewType,
+        custom_prompt: Option<&str>,
+    ) -> Result<ReviewResult> {
+        let prompt = crate::llm::prompt::build_review_prompt(diff, &review_type, custom_prompt);
         let response = self.call_api(&prompt).await?;
 
         tracing::debug!("LLM review response: {}", response);

@@ -43,6 +43,7 @@ pub async fn run(cli: &Cli, config: &AppConfig, no_edit: bool, yes: bool) -> Res
         insertions: stats.insertions,
         deletions: stats.deletions,
         branch_name: repo.get_current_branch()?,
+        custom_prompt: config.commit.custom_prompt.clone(),
     };
 
     let mut message = provider

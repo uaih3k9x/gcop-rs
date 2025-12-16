@@ -172,9 +172,11 @@ impl LLMProvider for ClaudeProvider {
             insertions: 0,
             deletions: 0,
             branch_name: None,
+            custom_prompt: None,
         });
 
-        let prompt = crate::llm::prompt::build_commit_prompt(diff, &ctx);
+        let prompt =
+            crate::llm::prompt::build_commit_prompt(diff, &ctx, ctx.custom_prompt.as_deref());
 
         // Debug 模式下输出 prompt 长度
         tracing::debug!(
@@ -190,8 +192,13 @@ impl LLMProvider for ClaudeProvider {
         Ok(response)
     }
 
-    async fn review_code(&self, diff: &str, review_type: ReviewType) -> Result<ReviewResult> {
-        let prompt = crate::llm::prompt::build_review_prompt(diff, &review_type);
+    async fn review_code(
+        &self,
+        diff: &str,
+        review_type: ReviewType,
+        custom_prompt: Option<&str>,
+    ) -> Result<ReviewResult> {
+        let prompt = crate::llm::prompt::build_review_prompt(diff, &review_type, custom_prompt);
         let response = self.call_api(&prompt).await?;
 
         // Debug 模式下输出 LLM 返回的原始文本

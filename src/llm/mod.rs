@@ -18,7 +18,12 @@ pub trait LLMProvider: Send + Sync {
     ) -> Result<String>;
 
     /// 代码审查
-    async fn review_code(&self, diff: &str, review_type: ReviewType) -> Result<ReviewResult>;
+    async fn review_code(
+        &self,
+        diff: &str,
+        review_type: ReviewType,
+        custom_prompt: Option<&str>,
+    ) -> Result<ReviewResult>;
 
     /// Provider 名称
     fn name(&self) -> &str;
@@ -34,6 +39,7 @@ pub struct CommitContext {
     pub insertions: usize,
     pub deletions: usize,
     pub branch_name: Option<String>,
+    pub custom_prompt: Option<String>,
 }
 
 /// 审查类型

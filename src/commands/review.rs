@@ -53,7 +53,9 @@ pub async fn run(cli: &Cli, config: &AppConfig, target: &ReviewTarget, format: &
         ReviewTarget::File { path } => ReviewType::FileOrDir(path.clone()),
     };
 
-    let result = provider.review_code(&diff, review_type).await?;
+    let result = provider
+        .review_code(&diff, review_type, config.review.custom_prompt.as_deref())
+        .await?;
 
     spinner.finish_and_clear();
 

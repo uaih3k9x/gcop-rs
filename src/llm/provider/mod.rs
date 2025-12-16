@@ -23,9 +23,7 @@ pub fn create_provider(
 
     // 决定使用哪种 API 风格
     // 优先使用 api_style 字段，否则使用 provider 名称（向后兼容）
-    let api_style = provider_config
-        .api_style.as_deref()
-        .unwrap_or(name);
+    let api_style = provider_config.api_style.as_deref().unwrap_or(name);
 
     // 根据 API 风格创建对应的 Provider 实现
     match api_style {
