@@ -87,9 +87,11 @@ pub fn build_commit_prompt(
         .replace("{branch_info}", &branch_info);
 
     // 在 prompt 尾部追加用户反馈
-    if let Some(feedback) = &context.user_feedback {
-        prompt.push_str("\n\n## Additional User Requirement:\n");
-        prompt.push_str(feedback);
+    if !context.user_feedback.is_empty() {
+        prompt.push_str("\n\n## Additional User Requirements:\n");
+        for (i, fb) in context.user_feedback.iter().enumerate() {
+            prompt.push_str(&format!("{}. {}\n", i + 1, fb));
+        }
     }
 
     prompt

@@ -16,10 +16,14 @@ enum CommitState {
     /// 需要生成/重新生成 message
     Generating {
         attempt: usize,
-        feedback: Option<String>,
+        feedbacks: Vec<String>,
     },
     /// 展示生成的 message 并等待用户操作
-    WaitingForAction { message: String, attempt: usize },
+    WaitingForAction {
+        message: String,
+        attempt: usize,
+        feedbacks: Vec<String>,
+    },
     /// 用户接受，准备提交
     Accepted { message: String },
     /// 用户取消
@@ -60,12 +64,12 @@ pub async fn run(cli: &Cli, config: &AppConfig, no_edit: bool, yes: bool) -> Res
     let should_edit = config.commit.allow_edit && !no_edit;
     let mut state = CommitState::Generating {
         attempt: 0,
-        feedback: None,
+        feedbacks: vec![],
     };
 
     loop {
         state = match state {
-            CommitState::Generating { attempt, feedback } => {
+            CommitState::Generating { attempt, feedbacks } => {
                 // 检查重试上限
                 if attempt >= MAX_RETRIES {
                     ui::warning(
@@ -77,7 +81,7 @@ pub async fn run(cli: &Cli, config: &AppConfig, no_edit: bool, yes: bool) -> Res
 
                 // 生成 message
                 let message =
-                    generate_message(&provider, &repo, &diff, &stats, config, &feedback, attempt)
+                    generate_message(&provider, &repo, &diff, &stats, config, &feedbacks, attempt)
                         .await?;
 
                 // --yes 标志直接接受
@@ -86,11 +90,19 @@ pub async fn run(cli: &Cli, config: &AppConfig, no_edit: bool, yes: bool) -> Res
                 } else {
                     // 显示生成的 message
                     display_message(&message, attempt, colored);
-                    CommitState::WaitingForAction { message, attempt }
+                    CommitState::WaitingForAction {
+                        message,
+                        attempt,
+                        feedbacks,
+                    }
                 }
             }
 
-            CommitState::WaitingForAction { message, attempt } => {
+            CommitState::WaitingForAction {
+                message,
+                attempt,
+                feedbacks,
+            } => {
                 ui::step("3/4", "Choose next action...", colored);
                 let action = ui::commit_action_menu(&message, should_edit, attempt, colored)?;
 
@@ -115,20 +127,23 @@ pub async fn run(cli: &Cli, config: &AppConfig, no_edit: bool, yes: bool) -> Res
 
                     ui::CommitAction::Retry => CommitState::Generating {
                         attempt: attempt + 1,
-                        feedback: None,
+                        feedbacks, // 保留已有 feedback
                     },
 
                     ui::CommitAction::RetryWithFeedback => {
-                        let feedback = ui::get_retry_feedback()?;
-                        if feedback.is_none() {
+                        let new_feedback = ui::get_retry_feedback()?;
+                        let mut new_feedbacks = feedbacks;
+                        if let Some(fb) = new_feedback {
+                            new_feedbacks.push(fb);
+                        } else {
                             ui::warning(
-                                "No feedback provided, will retry without additional instructions.",
+                                "No feedback provided, will retry with existing instructions.",
                                 colored,
                             );
                         }
                         CommitState::Generating {
                             attempt: attempt + 1,
-                            feedback,
+                            feedbacks: new_feedbacks,
                         }
                     }
 
@@ -164,7 +179,7 @@ async fn generate_message(
     diff: &str,
     stats: &DiffStats,
     config: &AppConfig,
-    feedback: &Option<String>,
+    feedbacks: &[String],
     attempt: usize,
 ) -> Result<String> {
     let spinner = ui::Spinner::new(if attempt == 0 {
@@ -179,7 +194,7 @@ async fn generate_message(
         deletions: stats.deletions,
         branch_name: repo.get_current_branch()?,
         custom_prompt: config.commit.custom_prompt.clone(),
-        user_feedback: feedback.clone(),
+        user_feedback: feedbacks.to_vec(),
     };
 
     let message = provider
