@@ -4,7 +4,6 @@ use crate::llm::provider::create_provider;
 use crate::ui;
 use colored::Colorize;
 use dialoguer::Select;
-use std::process::Command;
 
 /// 编辑后用户可选的操作
 enum EditAction {
@@ -52,26 +51,29 @@ fn edit(colored: bool) -> Result<()> {
         ))
     })?;
 
-    // 获取编辑器
-    let editor = std::env::var("EDITOR")
-        .or_else(|_| std::env::var("VISUAL"))
-        .unwrap_or_else(|_| "vim".to_string());
-
     // 编辑-校验循环
     loop {
         println!(
             "{}",
-            ui::info(&format!("Opening {} ...", config_file.display()), colored)
+            ui::info(&format!("Editing {} ...", config_file.display()), colored)
         );
 
-        let status = Command::new(&editor).arg(&config_file).status()?;
+        // 读取当前内容
+        let content = std::fs::read_to_string(&config_file)?;
 
-        if !status.success() {
-            // 编辑器异常退出，恢复备份
-            std::fs::copy(&backup_file, &config_file).ok();
-            std::fs::remove_file(&backup_file).ok();
-            return Err(GcopError::Other("Editor exited with error".to_string()));
-        }
+        // 使用 edit crate 编辑（自动选择 $VISUAL > $EDITOR > platform default）
+        let edited = match edit::edit(&content) {
+            Ok(s) => s,
+            Err(e) => {
+                // 编辑器异常退出，恢复备份
+                std::fs::copy(&backup_file, &config_file).ok();
+                std::fs::remove_file(&backup_file).ok();
+                return Err(GcopError::Other(format!("Editor error: {}", e)));
+            }
+        };
+
+        // 写回文件
+        std::fs::write(&config_file, &edited)?;
 
         // 校验配置
         match load_config() {
