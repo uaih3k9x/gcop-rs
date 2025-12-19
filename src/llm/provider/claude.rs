@@ -118,10 +118,7 @@ impl LLMProvider for ClaudeProvider {
         let prompt =
             crate::llm::prompt::build_commit_prompt(diff, &ctx, ctx.custom_prompt.as_deref());
 
-        tracing::debug!(
-            "Commit message generation prompt length: {} chars",
-            prompt.len()
-        );
+        tracing::debug!("Prompt ({} chars):\n{}", prompt.len(), prompt);
 
         let response = self.call_api(&prompt).await?;
 

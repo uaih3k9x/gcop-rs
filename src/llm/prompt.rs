@@ -67,7 +67,17 @@ pub fn build_commit_prompt(
     context: &CommitContext,
     custom_template: Option<&str>,
 ) -> String {
-    let template = custom_template.unwrap_or(DEFAULT_COMMIT_PROMPT);
+    let template = match custom_template {
+        Some(t) if !t.contains("{diff}") => {
+            // 自定义模板缺少 {diff}，追加默认的 diff 部分
+            format!(
+                "{}\n\n## Git Diff:\n```\n{{diff}}\n```\n\n## Context:\n- Files: {{files_changed}}\n- Changes: +{{insertions}} -{{deletions}}",
+                t
+            )
+        }
+        Some(t) => t.to_string(),
+        None => DEFAULT_COMMIT_PROMPT.to_string(),
+    };
 
     let branch_info = context
         .branch_name
@@ -103,7 +113,14 @@ pub fn build_review_prompt(
     _review_type: &ReviewType,
     custom_template: Option<&str>,
 ) -> String {
-    let template = custom_template.unwrap_or(DEFAULT_REVIEW_PROMPT);
+    let template = match custom_template {
+        Some(t) if !t.contains("{diff}") => {
+            // 自定义模板缺少 {diff}，追加默认的 diff 部分
+            format!("{}\n\n## Code to Review:\n```\n{{diff}}\n```", t)
+        }
+        Some(t) => t.to_string(),
+        None => DEFAULT_REVIEW_PROMPT.to_string(),
+    };
 
     template.replace("{diff}", diff)
 }
