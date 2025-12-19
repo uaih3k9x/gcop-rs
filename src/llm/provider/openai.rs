@@ -133,6 +133,9 @@ impl LLMProvider for OpenAIProvider {
         custom_prompt: Option<&str>,
     ) -> Result<ReviewResult> {
         let prompt = crate::llm::prompt::build_review_prompt(diff, &review_type, custom_prompt);
+
+        tracing::debug!("Review prompt ({} chars):\n{}", prompt.len(), prompt);
+
         let response = self.call_api(&prompt).await?;
 
         tracing::debug!("LLM review response: {}", response);

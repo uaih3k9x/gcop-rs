@@ -9,6 +9,50 @@ gcop-rs allows you to customize the prompts sent to AI for both commit message g
 - **Focus**: Emphasize specific review criteria (security, performance, etc.)
 - **Context**: Add project-specific guidelines
 
+## Auto-Completion
+
+gcop-rs automatically appends missing required sections to your custom prompts, so you can focus on writing instructions without worrying about placeholders.
+
+### Commit Prompts
+
+If your custom prompt doesn't contain `{diff}`, gcop-rs will automatically append:
+- Git diff section with `{diff}` placeholder
+- Context section with `{files_changed}`, `{insertions}`, `{deletions}`
+
+**Example - Simplified custom prompt:**
+```toml
+[commit]
+custom_prompt = "Generate commit message in Chinese, be concise"
+```
+
+This will be automatically expanded to:
+```
+Generate commit message in Chinese, be concise
+
+## Git Diff:
+```
+<actual diff content>
+```
+
+## Context:
+- Files: src/main.rs, src/lib.rs
+- Changes: +45 -12
+```
+
+### Review Prompts
+
+For review prompts, gcop-rs will:
+1. Append `{diff}` section if missing
+2. **Always** append JSON output format specification
+
+**Example - Simplified custom prompt:**
+```toml
+[review]
+custom_prompt = "Review this code for security vulnerabilities, focus on SQL injection and XSS"
+```
+
+This will be automatically expanded to include the diff and JSON format instructions.
+
 ## Template Variables
 
 ### Commit Message Prompts

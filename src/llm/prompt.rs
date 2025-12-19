@@ -39,9 +39,10 @@ const DEFAULT_REVIEW_PROMPT: &str = r#"You are an expert code reviewer. Review t
 2. **Security**: Are there any security vulnerabilities?
 3. **Performance**: Are there any performance issues?
 4. **Maintainability**: Is the code readable and maintainable?
-5. **Best Practices**: Does it follow best practices?
+5. **Best Practices**: Does it follow best practices?"#;
 
-## Output Format:
+/// 默认的 JSON 输出格式说明（用于自定义 review prompt 时追加）
+const DEFAULT_JSON_FORMAT: &str = r#"## Output Format:
 Provide your review in JSON format
 Do not include any explanations outside the JSON structure. Format as follows:
 {{
@@ -113,14 +114,18 @@ pub fn build_review_prompt(
     _review_type: &ReviewType,
     custom_template: Option<&str>,
 ) -> String {
-    let template = match custom_template {
-        Some(t) if !t.contains("{diff}") => {
-            // 自定义模板缺少 {diff}，追加默认的 diff 部分
-            format!("{}\n\n## Code to Review:\n```\n{{diff}}\n```", t)
-        }
-        Some(t) => t.to_string(),
-        None => DEFAULT_REVIEW_PROMPT.to_string(),
-    };
+    let mut template = custom_template
+        .map(|t| t.to_string())
+        .unwrap_or_else(|| DEFAULT_REVIEW_PROMPT.to_string());
+
+    // 检测并追加缺失的 {diff}
+    if !template.contains("{diff}") {
+        template.push_str("\n\n## Code to Review:\n```\n{diff}\n```");
+    }
+
+    // 始终追加 JSON 格式说明
+    template.push_str("\n\n");
+    template.push_str(DEFAULT_JSON_FORMAT);
 
     template.replace("{diff}", diff)
 }

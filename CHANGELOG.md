@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2025-12-19
+
+### Added
+- **Prompt auto-completion**: Custom prompts now automatically append missing required sections
+  - Commit prompts: auto-append `{diff}` and context if missing
+  - Review prompts: auto-append `{diff}` if missing, **always** append JSON output format
+- **Verbose prompt output**: `-v` flag now shows the complete prompt sent to LLM (both commit and review)
+
+### Fixed
+- **JSON response parsing**: Fixed `clean_json_response` chain bug where `unwrap_or(response)` incorrectly fell back to original response
+- **Defensive JSON extraction**: Now extracts content between first `{` and last `}`, robust against various LLM response wrappers
+
 ## [0.1.3] - 2025-12-19
 
 ### Added
@@ -98,6 +110,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Edit action properly returns to menu without triggering regeneration
 - Commit message display no longer duplicates after editing
 
+[0.1.4]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.1.4
 [0.1.3]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.1.3
 [0.1.2]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.1.2
 [0.1.1]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.1.1

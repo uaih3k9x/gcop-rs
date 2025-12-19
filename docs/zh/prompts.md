@@ -9,6 +9,50 @@ gcop-rs 允许你自定义发送给 AI 的 prompt，包括提交信息生成和�
 - **侧重点**: 强调特定的审查标准（安全性、性能等）
 - **上下文**: 添加项目特定的指导方针
 
+## 自动补全
+
+gcop-rs 会自动补全自定义 prompt 中缺失的必要部分，你只需要专注于编写指令，无需担心占位符。
+
+### Commit Prompt
+
+如果你的自定义 prompt 不包含 `{diff}`，gcop-rs 会自动追加：
+- 包含 `{diff}` 占位符的 Git diff 部分
+- 包含 `{files_changed}`、`{insertions}`、`{deletions}` 的上下文部分
+
+**示例 - 简化的自定义 prompt：**
+```toml
+[commit]
+custom_prompt = "用中文生成 commit message，要求简洁"
+```
+
+会被自动扩展为：
+```
+用中文生成 commit message，要求简洁
+
+## Git Diff:
+```
+<实际的 diff 内容>
+```
+
+## Context:
+- Files: src/main.rs, src/lib.rs
+- Changes: +45 -12
+```
+
+### Review Prompt
+
+对于 review prompt，gcop-rs 会：
+1. 如果缺少 `{diff}`，追加 diff 部分
+2. **始终**追加 JSON 输出格式说明
+
+**示例 - 简化的自定义 prompt：**
+```toml
+[review]
+custom_prompt = "审查这段代码的安全漏洞，重点关注 SQL 注入和 XSS"
+```
+
+会被自动扩展，包含 diff 和 JSON 格式说明。
+
 ## 模板变量
 
 ### Commit Message Prompts

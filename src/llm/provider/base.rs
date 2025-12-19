@@ -144,9 +144,10 @@ pub fn clean_json_response(response: &str) -> &str {
 
     // 提取 { 到 } 之间的内容
     if let (Some(start), Some(end)) = (trimmed.find('{'), trimmed.rfind('}'))
-        && start < end {
-            return &trimmed[start..=end];
-        }
+        && start < end
+    {
+        return &trimmed[start..=end];
+    }
 
     // Backup: 回退到移除 markdown 代码块标记
     let without_prefix = trimmed
