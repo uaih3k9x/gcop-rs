@@ -7,9 +7,9 @@ use dialoguer::Select;
 
 /// 编辑后用户可选的操作
 enum EditAction {
-    Retry,   // 重新编辑
-    Restore, // 恢复原配置
-    Ignore,  // 忽略错误
+    Retry,  // 重新编辑
+    Keep,   // 保留原配置（不修改）
+    Ignore, // 忽略错误强制保存
 }
 
 pub async fn run(action: Option<crate::cli::ConfigAction>, colored: bool) -> Result<()> {
@@ -42,14 +42,8 @@ fn edit(colored: bool) -> Result<()> {
         return Err(GcopError::Config("Config file not found".to_string()));
     }
 
-    // 备份当前配置
-    let backup_file = config_file.with_extension("toml.bak");
-    std::fs::copy(&config_file, &backup_file).map_err(|e| {
-        GcopError::Io(std::io::Error::new(
-            e.kind(),
-            format!("Failed to backup config: {}", e),
-        ))
-    })?;
+    // 初始读取配置内容
+    let mut content = std::fs::read_to_string(&config_file)?;
 
     // 编辑-校验循环
     loop {
@@ -58,28 +52,15 @@ fn edit(colored: bool) -> Result<()> {
             ui::info(&format!("Editing {} ...", config_file.display()), colored)
         );
 
-        // 读取当前内容
-        let content = std::fs::read_to_string(&config_file)?;
-
         // 使用 edit crate 编辑（自动选择 $VISUAL > $EDITOR > platform default）
-        let edited = match edit::edit(&content) {
-            Ok(s) => s,
-            Err(e) => {
-                // 编辑器异常退出，恢复备份
-                std::fs::copy(&backup_file, &config_file).ok();
-                std::fs::remove_file(&backup_file).ok();
-                return Err(GcopError::Other(format!("Editor error: {}", e)));
-            }
-        };
+        let edited =
+            edit::edit(&content).map_err(|e| GcopError::Other(format!("Editor error: {}", e)))?;
 
-        // 写回文件
-        std::fs::write(&config_file, &edited)?;
-
-        // 校验配置
-        match load_config() {
+        // 校验配置（直接在内存校验）
+        match toml::from_str::<config::AppConfig>(&edited) {
             Ok(_) => {
-                // 校验成功，删除备份
-                std::fs::remove_file(&backup_file).ok();
+                // 校验成功，写入文件
+                std::fs::write(&config_file, &edited)?;
                 ui::success("Config file updated", colored);
                 return Ok(());
             }
@@ -91,22 +72,18 @@ fn edit(colored: bool) -> Result<()> {
 
                 match prompt_edit_action(colored)? {
                     EditAction::Retry => {
-                        // 继续循环，重新编辑
+                        // 保留编辑后的内容继续编辑
+                        content = edited;
                         continue;
                     }
-                    EditAction::Restore => {
-                        std::fs::copy(&backup_file, &config_file).map_err(|e| {
-                            GcopError::Io(std::io::Error::new(
-                                e.kind(),
-                                format!("Failed to restore config: {}", e),
-                            ))
-                        })?;
-                        std::fs::remove_file(&backup_file).ok();
-                        ui::warning("Config restored to previous version", colored);
+                    EditAction::Keep => {
+                        // 原文件从未被修改，直接返回
+                        println!("{}", ui::info("Original config unchanged", colored));
                         return Ok(());
                     }
                     EditAction::Ignore => {
-                        std::fs::remove_file(&backup_file).ok();
+                        // 强制保存错误的配置
+                        std::fs::write(&config_file, &edited)?;
                         ui::warning("Config saved with errors", colored);
                         return Ok(());
                     }
@@ -125,19 +102,19 @@ fn prompt_edit_action(colored: bool) -> Result<EditAction> {
                 "✎".yellow().bold(),
                 "Re-edit the config file".yellow()
             ),
-            format!("{} {}", "↩".blue().bold(), "Restore previous config".blue()),
+            format!("{} {}", "↩".blue().bold(), "Keep original config".blue()),
             format!(
                 "{} {} {}",
                 "⚠".red().bold(),
-                "Ignore errors and keep current".red(),
+                "Ignore errors and save anyway".red(),
                 "(dangerous)".red().bold()
             ),
         ]
     } else {
         vec![
             "✎ Re-edit the config file".to_string(),
-            "↩ Restore previous config".to_string(),
-            "⚠ Ignore errors and keep current (dangerous)".to_string(),
+            "↩ Keep original config".to_string(),
+            "⚠ Ignore errors and save anyway (dangerous)".to_string(),
         ]
     };
 
@@ -156,7 +133,7 @@ fn prompt_edit_action(colored: bool) -> Result<EditAction> {
 
     Ok(match selection {
         0 => EditAction::Retry,
-        1 => EditAction::Restore,
+        1 => EditAction::Keep,
         _ => EditAction::Ignore,
     })
 }
