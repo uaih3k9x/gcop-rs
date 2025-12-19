@@ -110,7 +110,7 @@ fn print_text(result: &ReviewResult, description: &str, config: &AppConfig) {
                 IssueSeverity::Info => 2,
             };
 
-            if issue_level < min_level {
+            if issue_level > min_level {
                 continue;
             }
 

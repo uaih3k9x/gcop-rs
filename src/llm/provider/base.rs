@@ -140,14 +140,26 @@ pub fn default_temperature() -> f32 {
 
 /// 清理 JSON 响应（移除 markdown 代码块标记）
 pub fn clean_json_response(response: &str) -> &str {
-    response
-        .trim()
+    let trimmed = response.trim();
+
+    // 提取 { 到 } 之间的内容
+    if let (Some(start), Some(end)) = (trimmed.find('{'), trimmed.rfind('}'))
+        && start < end {
+            return &trimmed[start..=end];
+        }
+
+    // Backup: 回退到移除 markdown 代码块标记
+    let without_prefix = trimmed
         .strip_prefix("```json")
-        .unwrap_or(response)
-        .strip_prefix("```")
-        .unwrap_or(response)
+        .or_else(|| trimmed.strip_prefix("```JSON"))
+        .or_else(|| trimmed.strip_prefix("```"))
+        .map(|s| s.trim_start()) // 移除前缀后的换行符
+        .unwrap_or(trimmed);
+
+    without_prefix
         .strip_suffix("```")
-        .unwrap_or(response)
+        .map(|s| s.trim_end()) // 移除后缀前的换行符
+        .unwrap_or(without_prefix)
         .trim()
 }
 
