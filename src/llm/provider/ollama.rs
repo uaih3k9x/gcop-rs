@@ -2,10 +2,10 @@ use async_trait::async_trait;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
-use super::base::{build_endpoint, extract_extra_f32, parse_review_response};
+use super::base::{build_endpoint, extract_extra_f32, parse_review_response, send_llm_request};
 use super::utils::{DEFAULT_OLLAMA_BASE, OLLAMA_API_SUFFIX};
 use crate::config::ProviderConfig;
-use crate::error::{GcopError, Result};
+use crate::error::Result;
 use crate::llm::{CommitContext, LLMProvider, ReviewResult, ReviewType};
 
 /// Ollama API Provider
@@ -71,35 +71,16 @@ impl OllamaProvider {
             self.temperature
         );
 
-        let response = self
-            .client
-            .post(&self.endpoint)
-            .header("Content-Type", "application/json")
-            .json(&request)
-            .send()
-            .await?;
+        let response: OllamaResponse = send_llm_request(
+            &self.client,
+            &self.endpoint,
+            &[], // Ollama 无需 auth headers
+            &request,
+            "Ollama",
+        )
+        .await?;
 
-        let status = response.status();
-        let response_text = response.text().await?;
-
-        tracing::debug!("Ollama API response status: {}", status);
-        tracing::debug!("Ollama API response body: {}", response_text);
-
-        if !status.is_success() {
-            return Err(GcopError::Llm(format!(
-                "Ollama API error ({}): {}",
-                status, response_text
-            )));
-        }
-
-        let response_body: OllamaResponse = serde_json::from_str(&response_text).map_err(|e| {
-            GcopError::Llm(format!(
-                "Failed to parse Ollama response: {}. Raw response: {}",
-                e, response_text
-            ))
-        })?;
-
-        Ok(response_body.response)
+        Ok(response.response)
     }
 }
 

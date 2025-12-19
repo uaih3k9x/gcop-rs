@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use super::base::{
     build_endpoint, default_temperature, extract_api_key, extract_extra_f32_or, extract_extra_u32,
-    parse_review_response,
+    parse_review_response, send_llm_request,
 };
 use super::utils::{DEFAULT_OPENAI_BASE, OPENAI_API_SUFFIX};
 use crate::config::ProviderConfig;
@@ -80,7 +80,6 @@ impl OpenAIProvider {
             max_tokens: self.max_tokens,
         };
 
-        // Debug 日志
         tracing::debug!(
             "OpenAI API request: model={}, temperature={}, max_tokens={:?}",
             self.model,
@@ -88,44 +87,22 @@ impl OpenAIProvider {
             self.max_tokens
         );
 
-        let response = self
-            .client
-            .post(&self.endpoint)
-            .header("Authorization", format!("Bearer {}", self.api_key))
-            .header("Content-Type", "application/json")
-            .json(&request)
-            .send()
-            .await?;
+        let auth_header = format!("Bearer {}", self.api_key);
+        let response: OpenAIResponse = send_llm_request(
+            &self.client,
+            &self.endpoint,
+            &[("Authorization", auth_header.as_str())],
+            &request,
+            "OpenAI",
+        )
+        .await?;
 
-        let status = response.status();
-        let response_text = response.text().await?;
-
-        tracing::debug!("OpenAI API response status: {}", status);
-        tracing::debug!("OpenAI API response body: {}", response_text);
-
-        if !status.is_success() {
-            return Err(GcopError::Llm(format!(
-                "OpenAI API error ({}): {}",
-                status, response_text
-            )));
-        }
-
-        // 解析响应
-        let response_body: OpenAIResponse = serde_json::from_str(&response_text).map_err(|e| {
-            GcopError::Llm(format!(
-                "Failed to parse OpenAI response: {}. Raw response: {}",
-                e, response_text
-            ))
-        })?;
-
-        let text = response_body
+        response
             .choices
             .into_iter()
             .next()
             .map(|choice| choice.message.content)
-            .unwrap_or_default();
-
-        Ok(text)
+            .ok_or_else(|| GcopError::Llm("OpenAI response contains no choices".to_string()))
     }
 }
 

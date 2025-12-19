@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use super::base::{
     build_endpoint, default_max_tokens, default_temperature, extract_api_key, extract_extra_f32_or,
-    extract_extra_u32_or, parse_review_response,
+    extract_extra_u32_or, parse_review_response, send_llm_request,
 };
 use super::utils::{CLAUDE_API_SUFFIX, DEFAULT_CLAUDE_BASE};
 use crate::config::ProviderConfig;
@@ -76,7 +76,6 @@ impl ClaudeProvider {
             }],
         };
 
-        // Debug 模式下输出请求内容
         tracing::debug!(
             "Claude API request: model={}, max_tokens={}, temperature={}",
             self.model,
@@ -84,41 +83,19 @@ impl ClaudeProvider {
             self.temperature
         );
 
-        let response = self
-            .client
-            .post(&self.endpoint)
-            .header("x-api-key", &self.api_key)
-            .header("anthropic-version", "2023-06-01")
-            .header("content-type", "application/json")
-            .json(&request)
-            .send()
-            .await?;
+        let response: ClaudeResponse = send_llm_request(
+            &self.client,
+            &self.endpoint,
+            &[
+                ("x-api-key", self.api_key.as_str()),
+                ("anthropic-version", "2023-06-01"),
+            ],
+            &request,
+            "Claude",
+        )
+        .await?;
 
-        let status = response.status();
-
-        // 先获取文本响应
-        let response_text = response.text().await?;
-
-        // Debug 模式下输出原始响应
-        tracing::debug!("Claude API response status: {}", status);
-        tracing::debug!("Claude API response body: {}", response_text);
-
-        if !status.is_success() {
-            return Err(GcopError::Llm(format!(
-                "Claude API error ({}): {}",
-                status, response_text
-            )));
-        }
-
-        // 解析 JSON
-        let response_body: ClaudeResponse = serde_json::from_str(&response_text).map_err(|e| {
-            GcopError::Llm(format!(
-                "Failed to parse Claude response: {}. Raw response: {}",
-                e, response_text
-            ))
-        })?;
-
-        let text = response_body
+        let text = response
             .content
             .into_iter()
             .filter(|block| block.content_type == "text")
