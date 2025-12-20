@@ -5,10 +5,12 @@ pub mod openai;
 pub mod utils;
 
 use std::sync::Arc;
+use std::time::Duration;
 
 use reqwest::Client;
 
 use crate::config::AppConfig;
+use crate::constants::http::{CONNECT_TIMEOUT_SECS, REQUEST_TIMEOUT_SECS};
 use crate::error::{GcopError, Result};
 use crate::llm::LLMProvider;
 
@@ -23,6 +25,8 @@ pub(crate) fn create_http_client() -> Result<Client> {
 
     Client::builder()
         .user_agent(user_agent)
+        .timeout(Duration::from_secs(REQUEST_TIMEOUT_SECS))
+        .connect_timeout(Duration::from_secs(CONNECT_TIMEOUT_SECS))
         .build()
         .map_err(GcopError::Network)
 }

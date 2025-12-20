@@ -9,6 +9,15 @@ pub mod llm {
     pub const DEFAULT_TEMPERATURE: f32 = 0.3;
 }
 
+/// HTTP 相关常量
+pub mod http {
+    /// 请求超时时间（秒）
+    pub const REQUEST_TIMEOUT_SECS: u64 = 120;
+
+    /// 连接超时时间（秒）
+    pub const CONNECT_TIMEOUT_SECS: u64 = 10;
+}
+
 /// Commit 相关常量
 pub mod commit {
     /// 最大重试次数

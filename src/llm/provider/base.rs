@@ -41,7 +41,42 @@ where
         req = req.header(*key, *value);
     }
 
-    let response = req.json(request_body).send().await?;
+    tracing::debug!("Sending request to: {}", endpoint);
+
+    let response = req.json(request_body).send().await.map_err(|e| {
+        let error_details = format!("{}", e);
+        let mut error_type = "unknown";
+
+        if e.is_timeout() {
+            error_type = "timeout";
+        } else if e.is_connect() {
+            error_type = "connection failed";
+        } else if e.is_request() {
+            error_type = "request error";
+        } else if e.is_body() {
+            error_type = "body error";
+        } else if e.is_decode() {
+            error_type = "decode error";
+        }
+
+        tracing::error!("{} API request failed [{}]: {}", provider_name, error_type, error_details);
+
+        // 为不同类型的网络错误提供更详细的错误信息
+        if e.is_timeout() {
+            GcopError::Llm(format!(
+                "{} API request timeout: {}. The request took too long to complete.",
+                provider_name, error_details
+            ))
+        } else if e.is_connect() {
+            GcopError::Llm(format!(
+                "{} API connection failed: {}. Check network connectivity or API endpoint.",
+                provider_name, error_details
+            ))
+        } else {
+            GcopError::Network(e)
+        }
+    })?;
+
     let status = response.status();
     let response_text = response.text().await?;
 
