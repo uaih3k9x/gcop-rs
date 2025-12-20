@@ -21,12 +21,24 @@ api_key = "sk-ant-api03-your-key-here"
 # - claude-opus-4-5-20251101 (最强，适合复杂审查)
 model = "claude-sonnet-4-5-20250929"
 
+# 可选: 最大响应 token 数 (默认: 2000)
+# max_tokens = 2000
+
+# 可选: 生成温度 (默认: 0.3)
+# temperature = 0.3
+
 # OpenAI Provider
 [llm.providers.openai]
 # API key（或使用环境变量 OPENAI_API_KEY）
 api_key = "sk-your-openai-key-here"
 # 推荐模型: gpt-4-turbo | gpt-4 | gpt-3.5-turbo
 model = "gpt-4-turbo"
+
+# 可选: 最大 token 数（不设置则使用模型默认值）
+# max_tokens = 4096
+
+# 可选: 温度 (默认: 0.3)
+# temperature = 0.3
 
 # Ollama Provider（本地部署）
 [llm.providers.ollama]
@@ -36,6 +48,21 @@ endpoint = "http://localhost:11434/api/generate"
 # 需先拉取: ollama pull codellama:13b
 model = "codellama:13b"
 
+# 可选: 温度
+# temperature = 0.3
+
+# ============================================
+# 自定义 Provider 示例
+# ============================================
+# DeepSeek (OpenAI 兼容)
+# [llm.providers.deepseek]
+# api_style = "openai"
+# endpoint = "https://api.deepseek.com/v1/chat/completions"
+# model = "deepseek-chat"
+# api_key = "your-deepseek-api-key-here"
+# max_tokens = 4096
+# temperature = 0.3
+
 # ============================================
 # Commit 配置
 # ============================================
@@ -43,6 +70,9 @@ model = "codellama:13b"
 # 启用差异预览和编辑功能
 show_diff_preview = true
 allow_edit = true
+
+# 重新生成的最大次数 (默认: 10)
+# max_retries = 10
 
 # 自定义 prompt（可选）
 # custom_prompt = """
@@ -67,12 +97,24 @@ colored = true
 verbose = false
 
 # ============================================
-# 自定义 Provider 示例
+# 网络配置
 # ============================================
-# DeepSeek (OpenAI 兼容)
-# [llm.providers.deepseek]
-# api_style = "openai"
-# endpoint = "https://api.deepseek.com/v1/chat/completions"
-# model = "deepseek-chat"
-# api_key = "your-deepseek-api-key-here"
-# # 使用: gcop --provider deepseek commit
+[network]
+# HTTP 请求超时（秒）(默认: 120)
+request_timeout = 120
+
+# HTTP 连接超时（秒）(默认: 10)
+connect_timeout = 10
+
+# API 请求失败时的最大重试次数 (默认: 3)
+max_retries = 3
+
+# 初始重试延迟（毫秒，指数退避）(默认: 1000)
+retry_delay_ms = 1000
+
+# ============================================
+# 文件配置
+# ============================================
+[file]
+# 最大文件大小（字节）(默认: 10MB)
+max_size = 10485760

@@ -8,7 +8,7 @@ use crate::ui;
 /// 执行 review 命令
 pub async fn run(cli: &Cli, config: &AppConfig, target: &ReviewTarget, format: &str) -> Result<()> {
     let colored = config.ui.colored;
-    let repo = GitRepository::open()?;
+    let repo = GitRepository::open(Some(&config.file))?;
     let provider = create_provider(config, cli.provider.as_deref())?;
 
     // 根据目标类型路由

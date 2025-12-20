@@ -9,13 +9,12 @@ use std::time::Duration;
 
 use reqwest::Client;
 
-use crate::config::AppConfig;
-use crate::constants::http::{CONNECT_TIMEOUT_SECS, REQUEST_TIMEOUT_SECS};
+use crate::config::{AppConfig, NetworkConfig};
 use crate::error::{GcopError, Result};
 use crate::llm::LLMProvider;
 
 /// 创建带有自定义 User-Agent 的 HTTP 客户端
-pub(crate) fn create_http_client() -> Result<Client> {
+pub(crate) fn create_http_client(network_config: &NetworkConfig) -> Result<Client> {
     let user_agent = format!(
         "{}/{} ({})",
         env!("CARGO_PKG_NAME"),
@@ -25,8 +24,8 @@ pub(crate) fn create_http_client() -> Result<Client> {
 
     Client::builder()
         .user_agent(user_agent)
-        .timeout(Duration::from_secs(REQUEST_TIMEOUT_SECS))
-        .connect_timeout(Duration::from_secs(CONNECT_TIMEOUT_SECS))
+        .timeout(Duration::from_secs(network_config.request_timeout))
+        .connect_timeout(Duration::from_secs(network_config.connect_timeout))
         .build()
         .map_err(GcopError::Network)
 }
@@ -51,15 +50,15 @@ pub fn create_provider(
     // 根据 API 风格创建对应的 Provider 实现
     match api_style {
         "claude" => {
-            let provider = claude::ClaudeProvider::new(provider_config, name)?;
+            let provider = claude::ClaudeProvider::new(provider_config, name, &config.network)?;
             Ok(Arc::new(provider))
         }
         "openai" => {
-            let provider = openai::OpenAIProvider::new(provider_config, name)?;
+            let provider = openai::OpenAIProvider::new(provider_config, name, &config.network)?;
             Ok(Arc::new(provider))
         }
         "ollama" => {
-            let provider = ollama::OllamaProvider::new(provider_config, name)?;
+            let provider = ollama::OllamaProvider::new(provider_config, name, &config.network)?;
             Ok(Arc::new(provider))
         }
         _ => Err(GcopError::Config(format!(

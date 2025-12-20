@@ -66,6 +66,7 @@ model = "codellama:13b"
 show_diff_preview = true
 allow_edit = true
 confirm_before_commit = true
+max_retries = 10
 
 # Review Settings
 [review]
@@ -76,6 +77,17 @@ min_severity = "info"  # critical | warning | info
 [ui]
 colored = true
 verbose = false
+
+# Network Settings
+[network]
+request_timeout = 120    # HTTP request timeout in seconds
+connect_timeout = 10     # HTTP connection timeout in seconds
+max_retries = 3          # Max retry attempts for failed API requests
+retry_delay_ms = 1000    # Initial retry delay (exponential backoff)
+
+# File Settings
+[file]
+max_size = 10485760      # Max file size for review (10MB)
 ```
 
 ## Configuration Options
@@ -97,7 +109,7 @@ Each provider under `[llm.providers.<name>]` supports:
 | `endpoint` | String | No | API endpoint (uses default if not set) |
 | `model` | String | Yes | Model name |
 | `temperature` | Float | No | Temperature (0.0-1.0, default: 0.3) |
-| `max_tokens` | Integer | No | Max tokens (Claude only, default: 2000) |
+| `max_tokens` | Integer | No | Max tokens for response (default: 2000) |
 
 ### Commit Settings
 
@@ -106,6 +118,7 @@ Each provider under `[llm.providers.<name>]` supports:
 | `show_diff_preview` | Boolean | `true` | Show diff stats before generating |
 | `allow_edit` | Boolean | `true` | Allow editing generated message |
 | `confirm_before_commit` | Boolean | `true` | Ask confirmation before committing |
+| `max_retries` | Integer | `10` | Max retry attempts for regenerating messages |
 | `custom_prompt` | String | No | Custom prompt template for commit messages |
 
 ### Review Settings
@@ -122,6 +135,21 @@ Each provider under `[llm.providers.<name>]` supports:
 |--------|------|---------|-------------|
 | `colored` | Boolean | `true` | Enable colored output |
 | `verbose` | Boolean | `false` | Show verbose logs (same as `--verbose` flag) |
+
+### Network Settings
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `request_timeout` | Integer | `120` | HTTP request timeout in seconds |
+| `connect_timeout` | Integer | `10` | HTTP connection timeout in seconds |
+| `max_retries` | Integer | `3` | Max retry attempts for failed API requests |
+| `retry_delay_ms` | Integer | `1000` | Initial retry delay in milliseconds (exponential backoff) |
+
+### File Settings
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `max_size` | Integer | `10485760` | Max file size for review in bytes (default: 10MB) |
 
 ## API Key Configuration
 

@@ -22,10 +22,16 @@ pub fn load_config() -> Result<AppConfig> {
         .set_default("commit.show_diff_preview", true)?
         .set_default("commit.allow_edit", true)?
         .set_default("commit.confirm_before_commit", true)?
+        .set_default("commit.max_retries", 10)?
         .set_default("review.show_full_diff", true)?
         .set_default("review.min_severity", "info")?
         .set_default("ui.colored", true)?
-        .set_default("ui.verbose", false)?;
+        .set_default("ui.verbose", false)?
+        .set_default("network.request_timeout", 120)?
+        .set_default("network.connect_timeout", 10)?
+        .set_default("network.max_retries", 3)?
+        .set_default("network.retry_delay_ms", 1000)?
+        .set_default("file.max_size", 10 * 1024 * 1024)?;
 
     // 2. 加载配置文件（如果存在）
     if let Some(config_path) = get_config_path()

@@ -5,7 +5,26 @@ All notable changes to gcop-rs will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.0] - 2025-12-20
+
+### Added
+
+- **Configurable network settings**: New `[network]` config section with `request_timeout`, `connect_timeout`, `max_retries`, `retry_delay_ms`
+- **Configurable file limits**: New `[file]` config section with `max_size` for review file size limit
+- **LLM parameter config**: `max_tokens` and `temperature` can now be set per-provider in config file
+- **Commit retry limit config**: New `max_retries` option in `[commit]` section
+
+### Changed
+
+- **Constants elimination**: Removed `src/constants.rs`, moved constants to their usage sites
+  - LLM defaults → `src/llm/provider/base.rs`
+  - UI constants → `src/ui/prompt.rs`
+  - Prompt templates → `src/llm/prompt.rs`
+- **Config-driven architecture**: All previously hardcoded values now read from config with sensible defaults
+
+### Breaking Changes
+
+- `GitRepository::open()` now takes `Option<&FileConfig>` parameter (pass `None` for defaults)
 
 ## [0.1.6] - 2025-12-20
 
@@ -138,6 +157,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Edit action properly returns to menu without triggering regeneration
 - Commit message display no longer duplicates after editing
 
+[0.2.0]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.2.0
 [0.1.6]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.1.6
 [0.1.5]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.1.5
 [0.1.4]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.1.4

@@ -8,13 +8,19 @@ use serde::de::DeserializeOwned;
 use std::time::Duration;
 
 use crate::config::ProviderConfig;
-use crate::constants::llm::{DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE};
-use crate::constants::retry::{INITIAL_RETRY_DELAY_MS, MAX_RETRY_ATTEMPTS};
-use crate::constants::ui::ERROR_PREVIEW_LENGTH;
 use crate::error::{GcopError, Result};
 use crate::llm::ReviewResult;
 
 use super::utils::complete_endpoint;
+
+/// 默认 max_tokens
+const DEFAULT_MAX_TOKENS: u32 = 2000;
+
+/// 默认 temperature
+const DEFAULT_TEMPERATURE: f32 = 0.3;
+
+/// 错误预览最大长度
+const ERROR_PREVIEW_LENGTH: usize = 500;
 
 /// 判断错误是否应该重试
 fn is_retryable_error(error: &GcopError) -> bool {
@@ -121,6 +127,8 @@ where
 /// * `request_body` - 请求体
 /// * `provider_name` - Provider 名称（用于日志和错误信息）
 /// * `spinner` - 可选的进度 spinner（用于显示重试进度）
+/// * `max_retries` - 最大重试次数
+/// * `retry_delay_ms` - 初始重试延迟（毫秒）
 pub async fn send_llm_request<Req, Resp>(
     client: &Client,
     endpoint: &str,
@@ -128,6 +136,8 @@ pub async fn send_llm_request<Req, Resp>(
     request_body: &Req,
     provider_name: &str,
     spinner: Option<&crate::ui::Spinner>,
+    max_retries: usize,
+    retry_delay_ms: u64,
 ) -> Result<Resp>
 where
     Req: Serialize,
@@ -163,7 +173,7 @@ where
                 }
 
                 // 检查是否还有重试次数
-                if attempt > MAX_RETRY_ATTEMPTS {
+                if attempt > max_retries {
                     tracing::debug!(
                         "{} API request failed after {} attempts",
                         provider_name,
@@ -174,18 +184,18 @@ where
 
                 // 更新 spinner 显示重试进度
                 if let Some(s) = spinner {
-                    s.append_suffix(&format!("(Retrying {}/{})", attempt, MAX_RETRY_ATTEMPTS));
+                    s.append_suffix(&format!("(Retrying {}/{})", attempt, max_retries));
                 }
 
                 // 计算指数退避延迟：1s, 2s, 4s
-                let delay_ms = INITIAL_RETRY_DELAY_MS * (1 << (attempt - 1));
+                let delay_ms = retry_delay_ms * (1 << (attempt - 1));
                 let delay = Duration::from_millis(delay_ms);
 
                 tracing::debug!(
                     "{} API request failed (attempt {}/{}): {}. Retrying in {:.1}s...",
                     provider_name,
                     attempt,
-                    MAX_RETRY_ATTEMPTS + 1,
+                    max_retries + 1,
                     e,
                     delay.as_secs_f64()
                 );
@@ -242,11 +252,6 @@ pub fn extract_extra_u32(config: &ProviderConfig, key: &str) -> Option<u32> {
         .map(|v| v as u32)
 }
 
-/// 提取 extra 配置中的 u32 值，带默认值
-pub fn extract_extra_u32_or(config: &ProviderConfig, key: &str, default: u32) -> u32 {
-    extract_extra_u32(config, key).unwrap_or(default)
-}
-
 /// 提取 extra 配置中的 f32 值
 pub fn extract_extra_f32(config: &ProviderConfig, key: &str) -> Option<f32> {
     config
@@ -256,19 +261,34 @@ pub fn extract_extra_f32(config: &ProviderConfig, key: &str) -> Option<f32> {
         .map(|v| v as f32)
 }
 
-/// 提取 extra 配置中的 f32 值，带默认值
-pub fn extract_extra_f32_or(config: &ProviderConfig, key: &str, default: f32) -> f32 {
-    extract_extra_f32(config, key).unwrap_or(default)
+/// 从配置中获取 max_tokens（优先显式字段，fallback 到 extra，最后使用默认值）
+pub fn get_max_tokens(config: &ProviderConfig) -> u32 {
+    config
+        .max_tokens
+        .or_else(|| extract_extra_u32(config, "max_tokens"))
+        .unwrap_or(DEFAULT_MAX_TOKENS)
 }
 
-/// 获取默认的 max_tokens
-pub fn default_max_tokens() -> u32 {
-    DEFAULT_MAX_TOKENS
+/// 从配置中获取 max_tokens（可选，用于 OpenAI 等不强制要求的场景）
+pub fn get_max_tokens_optional(config: &ProviderConfig) -> Option<u32> {
+    config
+        .max_tokens
+        .or_else(|| extract_extra_u32(config, "max_tokens"))
 }
 
-/// 获取默认的 temperature
-pub fn default_temperature() -> f32 {
-    DEFAULT_TEMPERATURE
+/// 从配置中获取 temperature（优先显式字段，fallback 到 extra，最后使用默认值）
+pub fn get_temperature(config: &ProviderConfig) -> f32 {
+    config
+        .temperature
+        .or_else(|| extract_extra_f32(config, "temperature"))
+        .unwrap_or(DEFAULT_TEMPERATURE)
+}
+
+/// 从配置中获取 temperature（可选）
+pub fn get_temperature_optional(config: &ProviderConfig) -> Option<f32> {
+    config
+        .temperature
+        .or_else(|| extract_extra_f32(config, "temperature"))
 }
 
 /// 清理 JSON 响应（移除 markdown 代码块标记）

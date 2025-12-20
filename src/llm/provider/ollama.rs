@@ -2,9 +2,11 @@ use async_trait::async_trait;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
-use super::base::{build_endpoint, extract_extra_f32, parse_review_response, send_llm_request};
+use super::base::{
+    build_endpoint, get_temperature_optional, parse_review_response, send_llm_request,
+};
 use super::utils::{DEFAULT_OLLAMA_BASE, OLLAMA_API_SUFFIX};
-use crate::config::ProviderConfig;
+use crate::config::{NetworkConfig, ProviderConfig};
 use crate::error::Result;
 use crate::llm::{CommitContext, LLMProvider, ReviewResult, ReviewType};
 
@@ -14,6 +16,8 @@ pub struct OllamaProvider {
     endpoint: String,
     model: String,
     temperature: Option<f32>,
+    max_retries: usize,
+    retry_delay_ms: u64,
 }
 
 #[derive(Serialize)]
@@ -39,17 +43,23 @@ struct OllamaResponse {
 }
 
 impl OllamaProvider {
-    pub fn new(config: &ProviderConfig, _provider_name: &str) -> Result<Self> {
+    pub fn new(
+        config: &ProviderConfig,
+        _provider_name: &str,
+        network_config: &NetworkConfig,
+    ) -> Result<Self> {
         // Ollama 本地部署，无需 API key
         let endpoint = build_endpoint(config, DEFAULT_OLLAMA_BASE, OLLAMA_API_SUFFIX);
         let model = config.model.clone();
-        let temperature = extract_extra_f32(config, "temperature");
+        let temperature = get_temperature_optional(config);
 
         Ok(Self {
-            client: super::create_http_client()?,
+            client: super::create_http_client(network_config)?,
             endpoint,
             model,
             temperature,
+            max_retries: network_config.max_retries,
+            retry_delay_ms: network_config.retry_delay_ms,
         })
     }
 
@@ -78,6 +88,8 @@ impl OllamaProvider {
             &request,
             "Ollama",
             spinner,
+            self.max_retries,
+            self.retry_delay_ms,
         )
         .await?;
 

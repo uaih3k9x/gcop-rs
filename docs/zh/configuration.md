@@ -66,6 +66,7 @@ model = "codellama:13b"
 show_diff_preview = true
 allow_edit = true
 confirm_before_commit = true
+max_retries = 10
 
 # Review 设置
 [review]
@@ -76,6 +77,17 @@ min_severity = "info"  # critical | warning | info
 [ui]
 colored = true
 verbose = false
+
+# 网络设置
+[network]
+request_timeout = 120    # HTTP 请求超时（秒）
+connect_timeout = 10     # HTTP 连接超时（秒）
+max_retries = 3          # API 请求失败时的最大重试次数
+retry_delay_ms = 1000    # 初始重试延迟（毫秒，指数退避）
+
+# 文件设置
+[file]
+max_size = 10485760      # 最大文件大小（10MB）
 ```
 
 ## 配置选项
@@ -97,7 +109,7 @@ verbose = false
 | `endpoint` | String | 否 | API 端点（未设置时使用默认值） |
 | `model` | String | 是 | 模型名称 |
 | `temperature` | Float | 否 | 温度参数（0.0-1.0，默认: 0.3） |
-| `max_tokens` | Integer | 否 | 最大 token 数（仅 Claude，默认: 2000） |
+| `max_tokens` | Integer | 否 | 最大响应 token 数（默认: 2000） |
 
 ### Commit 设置
 
@@ -106,6 +118,7 @@ verbose = false
 | `show_diff_preview` | Boolean | `true` | 生成前显示 diff 统计 |
 | `allow_edit` | Boolean | `true` | 允许编辑生成的消息 |
 | `confirm_before_commit` | Boolean | `true` | 提交前要求确认 |
+| `max_retries` | Integer | `10` | 重新生成的最大次数 |
 | `custom_prompt` | String | 无 | 自定义提交信息生成的 prompt 模板 |
 
 ### Review 设置
@@ -122,6 +135,21 @@ verbose = false
 |------|------|--------|------|
 | `colored` | Boolean | `true` | 启用彩色输出 |
 | `verbose` | Boolean | `false` | 显示详细日志（等同于 `--verbose` 标志） |
+
+### 网络设置
+
+| 选项 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `request_timeout` | Integer | `120` | HTTP 请求超时（秒） |
+| `connect_timeout` | Integer | `10` | HTTP 连接超时（秒） |
+| `max_retries` | Integer | `3` | API 请求失败时的最大重试次数 |
+| `retry_delay_ms` | Integer | `1000` | 初始重试延迟（毫秒，指数退避） |
+
+### 文件设置
+
+| 选项 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `max_size` | Integer | `10485760` | 文件审查的最大文件大小（字节，默认: 10MB） |
 
 ## API Key 配置
 

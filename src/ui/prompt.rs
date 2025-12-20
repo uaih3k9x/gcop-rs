@@ -1,8 +1,10 @@
 use colored::Colorize;
 use dialoguer::{Confirm, Input, Select};
 
-use crate::constants::ui::MAX_FEEDBACK_LENGTH;
 use crate::error::{GcopError, Result};
+
+/// 用户反馈最大长度
+const MAX_FEEDBACK_LENGTH: usize = 200;
 
 /// 用户对 commit message 的操作选择
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

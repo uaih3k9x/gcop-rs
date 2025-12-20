@@ -1,19 +1,32 @@
 use git2::{DiffOptions, Repository};
 use std::io::Write;
 
-use crate::constants::file::MAX_FILE_SIZE;
+use crate::config::FileConfig;
 use crate::error::{GcopError, Result};
 use crate::git::{DiffStats, GitOperations};
 
+/// 默认最大文件大小（10MB）
+const DEFAULT_MAX_FILE_SIZE: u64 = 10 * 1024 * 1024;
+
 pub struct GitRepository {
     repo: Repository,
+    max_file_size: u64,
 }
 
 impl GitRepository {
     /// 打开当前目录的 git 仓库
-    pub fn open() -> Result<Self> {
+    ///
+    /// # Arguments
+    /// * `file_config` - 可选的文件配置，None 则使用默认值
+    pub fn open(file_config: Option<&FileConfig>) -> Result<Self> {
         let repo = Repository::open(".")?;
-        Ok(Self { repo })
+        let max_file_size = file_config
+            .map(|c| c.max_size)
+            .unwrap_or(DEFAULT_MAX_FILE_SIZE);
+        Ok(Self {
+            repo,
+            max_file_size,
+        })
     }
 
     /// 将 git2::Diff 转换为字符串
@@ -124,11 +137,11 @@ impl GitOperations for GitRepository {
 
     fn get_file_content(&self, path: &str) -> Result<String> {
         let metadata = std::fs::metadata(path)?;
-        if metadata.len() > MAX_FILE_SIZE {
+        if metadata.len() > self.max_file_size {
             return Err(GcopError::InvalidInput(format!(
                 "File too large: {} bytes (max {} bytes). Please review manually.",
                 metadata.len(),
-                MAX_FILE_SIZE
+                self.max_file_size
             )));
         }
 

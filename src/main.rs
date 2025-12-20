@@ -1,7 +1,6 @@
 mod cli;
 mod commands;
 mod config;
-mod constants;
 mod error;
 mod git;
 mod llm;

@@ -4,7 +4,6 @@ use colored::Colorize;
 
 use crate::cli::Cli;
 use crate::config::AppConfig;
-use crate::constants::commit::MAX_RETRIES;
 use crate::error::{GcopError, Result};
 use crate::git::{DiffStats, GitOperations, repository::GitRepository};
 use crate::llm::{CommitContext, LLMProvider, provider::create_provider};
@@ -41,7 +40,7 @@ pub async fn run(cli: &Cli, config: &AppConfig, no_edit: bool, yes: bool) -> Res
     let colored = config.ui.colored;
 
     // 1. 初始化依赖
-    let repo = GitRepository::open()?;
+    let repo = GitRepository::open(None)?;
     let provider = create_provider(config, cli.provider.as_deref())?;
 
     // 2. 检查 staged changes
@@ -71,9 +70,10 @@ pub async fn run(cli: &Cli, config: &AppConfig, no_edit: bool, yes: bool) -> Res
         state = match state {
             CommitState::Generating { attempt, feedbacks } => {
                 // 检查重试上限
-                if attempt >= MAX_RETRIES {
+                let max_retries = config.commit.max_retries;
+                if attempt >= max_retries {
                     ui::warning(
-                        &format!("Reached maximum retry limit ({})", MAX_RETRIES),
+                        &format!("Reached maximum retry limit ({})", max_retries),
                         colored,
                     );
                     return Err(GcopError::Other("Too many retries".to_string()));

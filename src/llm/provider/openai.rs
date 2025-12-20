@@ -3,11 +3,11 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
 use super::base::{
-    build_endpoint, default_temperature, extract_api_key, extract_extra_f32_or, extract_extra_u32,
+    build_endpoint, extract_api_key, get_max_tokens_optional, get_temperature,
     parse_review_response, send_llm_request,
 };
 use super::utils::{DEFAULT_OPENAI_BASE, OPENAI_API_SUFFIX};
-use crate::config::ProviderConfig;
+use crate::config::{NetworkConfig, ProviderConfig};
 use crate::error::{GcopError, Result};
 use crate::llm::{CommitContext, LLMProvider, ReviewResult, ReviewType};
 
@@ -19,6 +19,8 @@ pub struct OpenAIProvider {
     model: String,
     max_tokens: Option<u32>,
     temperature: f32,
+    max_retries: usize,
+    retry_delay_ms: u64,
 }
 
 #[derive(Serialize)]
@@ -52,20 +54,26 @@ struct MessageContent {
 }
 
 impl OpenAIProvider {
-    pub fn new(config: &ProviderConfig, _provider_name: &str) -> Result<Self> {
+    pub fn new(
+        config: &ProviderConfig,
+        _provider_name: &str,
+        network_config: &NetworkConfig,
+    ) -> Result<Self> {
         let api_key = extract_api_key(config, "OPENAI_API_KEY", "OpenAI")?;
         let endpoint = build_endpoint(config, DEFAULT_OPENAI_BASE, OPENAI_API_SUFFIX);
         let model = config.model.clone();
-        let max_tokens = extract_extra_u32(config, "max_tokens");
-        let temperature = extract_extra_f32_or(config, "temperature", default_temperature());
+        let max_tokens = get_max_tokens_optional(config);
+        let temperature = get_temperature(config);
 
         Ok(Self {
-            client: super::create_http_client()?,
+            client: super::create_http_client(network_config)?,
             api_key,
             endpoint,
             model,
             max_tokens,
             temperature,
+            max_retries: network_config.max_retries,
+            retry_delay_ms: network_config.retry_delay_ms,
         })
     }
 
@@ -95,6 +103,8 @@ impl OpenAIProvider {
             &request,
             "OpenAI",
             spinner,
+            self.max_retries,
+            self.retry_delay_ms,
         )
         .await?;
 

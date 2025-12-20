@@ -21,12 +21,24 @@ api_key = "sk-ant-api03-your-key-here"
 # - claude-opus-4-5-20251101 (most powerful, for complex reviews)
 model = "claude-sonnet-4-5-20250929"
 
+# Optional: max tokens for response (default: 2000)
+# max_tokens = 2000
+
+# Optional: temperature for generation (default: 0.3)
+# temperature = 0.3
+
 # OpenAI Provider
 [llm.providers.openai]
 # API key (or use environment variable OPENAI_API_KEY)
 api_key = "sk-your-openai-key-here"
 # Recommended models: gpt-4-turbo | gpt-4 | gpt-3.5-turbo
 model = "gpt-4-turbo"
+
+# Optional: max tokens (omit to use model default)
+# max_tokens = 4096
+
+# Optional: temperature (default: 0.3)
+# temperature = 0.3
 
 # Ollama Provider (local deployment)
 [llm.providers.ollama]
@@ -36,6 +48,21 @@ endpoint = "http://localhost:11434/api/generate"
 # Pull model first: ollama pull codellama:13b
 model = "codellama:13b"
 
+# Optional: temperature
+# temperature = 0.3
+
+# ============================================
+# Custom Provider Example
+# ============================================
+# DeepSeek (OpenAI compatible)
+# [llm.providers.deepseek]
+# api_style = "openai"
+# endpoint = "https://api.deepseek.com/v1/chat/completions"
+# model = "deepseek-chat"
+# api_key = "your-deepseek-api-key-here"
+# max_tokens = 4096
+# temperature = 0.3
+
 # ============================================
 # Commit Configuration
 # ============================================
@@ -43,6 +70,9 @@ model = "codellama:13b"
 # Enable diff preview and edit functionality
 show_diff_preview = true
 allow_edit = true
+
+# Maximum retry attempts for regenerating commit messages (default: 10)
+# max_retries = 10
 
 # Custom prompt (optional)
 # custom_prompt = """
@@ -67,12 +97,24 @@ colored = true
 verbose = false
 
 # ============================================
-# Custom Provider Example
+# Network Configuration
 # ============================================
-# DeepSeek (OpenAI compatible)
-# [llm.providers.deepseek]
-# api_style = "openai"
-# endpoint = "https://api.deepseek.com/v1/chat/completions"
-# model = "deepseek-chat"
-# api_key = "your-deepseek-api-key-here"
-# # Usage: gcop --provider deepseek commit
+[network]
+# HTTP request timeout in seconds (default: 120)
+request_timeout = 120
+
+# HTTP connection timeout in seconds (default: 10)
+connect_timeout = 10
+
+# Maximum retry attempts for failed API requests (default: 3)
+max_retries = 3
+
+# Initial retry delay in milliseconds (exponential backoff) (default: 1000)
+retry_delay_ms = 1000
+
+# ============================================
+# File Configuration
+# ============================================
+[file]
+# Maximum file size for review in bytes (default: 10MB)
+max_size = 10485760

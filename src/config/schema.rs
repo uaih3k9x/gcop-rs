@@ -14,6 +14,12 @@ pub struct AppConfig {
 
     #[serde(default)]
     pub ui: UIConfig,
+
+    #[serde(default)]
+    pub network: NetworkConfig,
+
+    #[serde(default)]
+    pub file: FileConfig,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -43,7 +49,13 @@ pub struct ProviderConfig {
     /// 模型名称
     pub model: String,
 
-    /// 其他参数（temperature 等）
+    /// 最大生成 token 数
+    pub max_tokens: Option<u32>,
+
+    /// 温度参数（0.0-1.0）
+    pub temperature: Option<f32>,
+
+    /// 其他参数
     #[serde(flatten)]
     pub extra: HashMap<String, serde_json::Value>,
 }
@@ -66,6 +78,10 @@ pub struct CommitConfig {
     /// 可用占位符：{diff}, {files_changed}, {insertions}, {deletions}, {branch_name}
     #[serde(default)]
     pub custom_prompt: Option<String>,
+
+    /// 最大重试次数（用户手动重试）
+    #[serde(default = "default_commit_max_retries")]
+    pub max_retries: usize,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -95,12 +111,62 @@ pub struct UIConfig {
     pub verbose: bool,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct NetworkConfig {
+    /// HTTP 请求超时时间（秒）
+    #[serde(default = "default_request_timeout")]
+    pub request_timeout: u64,
+
+    /// HTTP 连接超时时间（秒）
+    #[serde(default = "default_connect_timeout")]
+    pub connect_timeout: u64,
+
+    /// LLM API 请求最大重试次数
+    #[serde(default = "default_network_max_retries")]
+    pub max_retries: usize,
+
+    /// 重试初始延迟（毫秒）
+    #[serde(default = "default_retry_delay_ms")]
+    pub retry_delay_ms: u64,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct FileConfig {
+    /// 最大文件大小（字节）
+    #[serde(default = "default_max_file_size")]
+    pub max_size: u64,
+}
+
 fn default_true() -> bool {
     true
 }
 
 fn default_severity() -> String {
     "info".to_string()
+}
+
+fn default_commit_max_retries() -> usize {
+    10
+}
+
+fn default_request_timeout() -> u64 {
+    120
+}
+
+fn default_connect_timeout() -> u64 {
+    10
+}
+
+fn default_network_max_retries() -> usize {
+    3
+}
+
+fn default_retry_delay_ms() -> u64 {
+    1000
+}
+
+fn default_max_file_size() -> u64 {
+    10 * 1024 * 1024 // 10MB
 }
 
 impl Default for LLMConfig {
@@ -119,6 +185,7 @@ impl Default for CommitConfig {
             allow_edit: true,
             confirm_before_commit: true,
             custom_prompt: None,
+            max_retries: default_commit_max_retries(),
         }
     }
 }
@@ -138,6 +205,25 @@ impl Default for UIConfig {
         Self {
             colored: true,
             verbose: false,
+        }
+    }
+}
+
+impl Default for NetworkConfig {
+    fn default() -> Self {
+        Self {
+            request_timeout: default_request_timeout(),
+            connect_timeout: default_connect_timeout(),
+            max_retries: default_network_max_retries(),
+            retry_delay_ms: default_retry_delay_ms(),
+        }
+    }
+}
+
+impl Default for FileConfig {
+    fn default() -> Self {
+        Self {
+            max_size: default_max_file_size(),
         }
     }
 }

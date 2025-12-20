@@ -5,7 +5,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Testing Git Operations Module ===\n");
 
     // 打开仓库
-    let repo = GitRepository::open()?;
+    let repo = GitRepository::open(None)?;
     println!("✓ Successfully opened Git repository");
 
     // 获取当前分支
