@@ -4,7 +4,11 @@ pub mod repository;
 
 use crate::error::Result;
 
+#[cfg(any(test, feature = "test-utils"))]
+use mockall::automock;
+
 /// Git 操作的统一接口
+#[cfg_attr(any(test, feature = "test-utils"), automock)]
 pub trait GitOperations {
     /// 获取 staged changes 的 diff
     fn get_staged_diff(&self) -> Result<String>;

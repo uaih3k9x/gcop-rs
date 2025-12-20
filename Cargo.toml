@@ -53,17 +53,18 @@ tokio = { version = "1.42", features = ["full"] }
 toml = "0.9"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
+mockall = { version = "0.13", optional = true }  # 测试工具
 
 [lib]
 name = "gcop_rs"
 path = "src/lib.rs"
 
-[[example]]
-name = "test_git_ops"
-path = "examples/test_git_ops.rs"
+[features]
+test-utils = ["mockall"]  # 测试工具 feature
 
 [dev-dependencies]
 tempfile = "3.14"           # 临时文件/目录
 mockito = "1.6"             # HTTP API mock
 pretty_assertions = "1.4"   # 更好的 assert 输出
 serial_test = "3.1"         # 环境变量测试串行化
+gcop-rs = { path = ".", features = ["test-utils"] }  # 启用测试工具 feature

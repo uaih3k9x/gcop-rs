@@ -84,22 +84,39 @@ pub fn commit_action_menu(
     // 根据重试次数调整提示文字
     let prompt = if colored {
         if retry_count == 0 {
-            format!("{}", "Choose next action:".cyan().bold())
+            format!(
+                "{} {}",
+                "Choose next action:".cyan().bold(),
+                "(ESC to quit)".dimmed()
+            )
         } else {
-            format!("{}", "Not satisfied? Choose again:".cyan().bold())
+            format!(
+                "{} {}",
+                "Not satisfied? Choose again:".cyan().bold(),
+                "(ESC to quit)".dimmed()
+            )
         }
     } else if retry_count == 0 {
-        "Choose next action:".to_string()
+        "Choose next action (ESC to quit):".to_string()
     } else {
-        "Not satisfied? Choose again:".to_string()
+        "Not satisfied? Choose again (ESC to quit):".to_string()
     };
 
     let selection = Select::new()
         .with_prompt(prompt)
         .items(&options)
         .default(0) // 默认选择 Accept
-        .interact()
+        .interact_opt()
         .map_err(|_| GcopError::UserCancelled)?;
+
+    // ESC 或 'q' 键取消
+    let selection = match selection {
+        Some(idx) => idx,
+        None => {
+            // 用户按 ESC 或 'q' 取消
+            return Ok(CommitAction::Quit);
+        }
+    };
 
     // 映射选择到枚举（需要考虑 allow_edit 的影响）
     let action = if allow_edit {

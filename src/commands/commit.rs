@@ -3,31 +3,12 @@ use std::sync::Arc;
 use colored::Colorize;
 
 use crate::cli::Cli;
+use crate::commands::commit_state_machine::{CommitState, GenerationResult, UserAction};
 use crate::config::AppConfig;
 use crate::error::{GcopError, Result};
 use crate::git::{DiffStats, GitOperations, repository::GitRepository};
 use crate::llm::{CommitContext, LLMProvider, provider::create_provider};
 use crate::ui;
-
-/// Commit 流程状态机
-#[derive(Debug)]
-enum CommitState {
-    /// 需要生成/重新生成 message
-    Generating {
-        attempt: usize,
-        feedbacks: Vec<String>,
-    },
-    /// 展示生成的 message 并等待用户操作
-    WaitingForAction {
-        message: String,
-        attempt: usize,
-        feedbacks: Vec<String>,
-    },
-    /// 用户接受，准备提交
-    Accepted { message: String },
-    /// 用户取消
-    Cancelled,
-}
 
 /// 执行 commit 命令
 ///
@@ -37,11 +18,31 @@ enum CommitState {
 /// * `no_edit` - 是否跳过编辑
 /// * `yes` - 是否跳过确认
 pub async fn run(cli: &Cli, config: &AppConfig, no_edit: bool, yes: bool) -> Result<()> {
-    let colored = config.ui.colored;
-
-    // 1. 初始化依赖
     let repo = GitRepository::open(None)?;
     let provider = create_provider(config, cli.provider.as_deref())?;
+
+    run_with_deps(
+        cli,
+        config,
+        no_edit,
+        yes,
+        &repo as &dyn GitOperations,
+        &provider,
+    )
+    .await
+}
+
+/// 执行 commit 命令（可测试版本，接受 trait 对象）
+#[allow(dead_code)] // 供测试使用
+async fn run_with_deps(
+    cli: &Cli,
+    config: &AppConfig,
+    no_edit: bool,
+    yes: bool,
+    repo: &dyn GitOperations,
+    provider: &Arc<dyn LLMProvider>,
+) -> Result<()> {
+    let colored = config.ui.colored;
 
     // 2. 检查 staged changes
     if !repo.has_staged_changes()? {
@@ -61,6 +62,7 @@ pub async fn run(cli: &Cli, config: &AppConfig, no_edit: bool, yes: bool) -> Res
 
     // 5. 状态机主循环
     let should_edit = config.commit.allow_edit && !no_edit;
+    let max_retries = config.commit.max_retries;
     let mut state = CommitState::Generating {
         attempt: 0,
         feedbacks: vec![],
@@ -69,101 +71,100 @@ pub async fn run(cli: &Cli, config: &AppConfig, no_edit: bool, yes: bool) -> Res
     loop {
         state = match state {
             CommitState::Generating { attempt, feedbacks } => {
-                // 检查重试上限
-                let max_retries = config.commit.max_retries;
-                if attempt >= max_retries {
+                // 使用状态机方法检查重试上限
+                let gen_state = CommitState::Generating {
+                    attempt,
+                    feedbacks: feedbacks.clone(),
+                };
+
+                if gen_state.is_at_max_retries(max_retries) {
                     ui::warning(
                         &format!("Reached maximum retry limit ({})", max_retries),
                         colored,
                     );
-                    return Err(GcopError::Other("Too many retries".to_string()));
+                    // 使用 MaxRetriesExceeded 变体，直接触发错误
+                    gen_state.handle_generation(GenerationResult::MaxRetriesExceeded, yes)?;
+                    unreachable!("MaxRetriesExceeded should return error");
                 }
 
                 // 生成 message
                 let message =
-                    generate_message(&provider, &repo, &diff, &stats, config, &feedbacks, attempt)
+                    generate_message(provider, repo, &diff, &stats, config, &feedbacks, attempt)
                         .await?;
 
-                // --yes 标志直接接受
-                if yes {
-                    CommitState::Accepted { message }
-                } else {
-                    // 显示生成的 message
+                // 使用状态机方法处理生成结果
+                let gen_state = CommitState::Generating { attempt, feedbacks };
+                let result = GenerationResult::Success(message.clone());
+                let next_state = gen_state.handle_generation(result, yes)?;
+
+                // 显示生成的消息（除非 --yes 直接接受）
+                if !yes {
                     display_message(&message, attempt, colored);
-                    CommitState::WaitingForAction {
-                        message,
-                        attempt,
-                        feedbacks,
-                    }
                 }
+
+                next_state
             }
 
             CommitState::WaitingForAction {
-                message,
+                ref message,
                 attempt,
-                feedbacks,
+                ref feedbacks,
             } => {
                 ui::step("3/4", "Choose next action...", colored);
-                let action = ui::commit_action_menu(&message, should_edit, attempt, colored)?;
+                let ui_action = ui::commit_action_menu(message, should_edit, attempt, colored)?;
 
-                match action {
-                    ui::CommitAction::Accept => CommitState::Accepted { message },
+                // 映射 UI action 到状态机 action，处理编辑逻辑
+                let user_action = match ui_action {
+                    ui::CommitAction::Accept => UserAction::Accept,
 
                     ui::CommitAction::Edit => {
                         ui::step("3/4", "Opening editor...", colored);
-                        match ui::edit_text(&message) {
+                        match ui::edit_text(message) {
                             Ok(edited) => {
                                 display_edited_message(&edited, colored);
-                                // 编辑后返回菜单
-                                CommitState::WaitingForAction {
-                                    message: edited,
-                                    attempt,
-                                    feedbacks,
+                                UserAction::Edit {
+                                    new_message: edited,
                                 }
                             }
                             Err(GcopError::UserCancelled) => {
                                 ui::warning("Edit cancelled.", colored);
-                                // 取消编辑返回菜单，保留原消息
-                                CommitState::WaitingForAction {
-                                    message,
-                                    attempt,
-                                    feedbacks,
-                                }
+                                UserAction::EditCancelled
                             }
                             Err(e) => return Err(e),
                         }
                     }
 
-                    ui::CommitAction::Retry => CommitState::Generating {
-                        attempt: attempt + 1,
-                        feedbacks, // 保留已有 feedback
-                    },
+                    ui::CommitAction::Retry => UserAction::Retry,
 
                     ui::CommitAction::RetryWithFeedback => {
                         let new_feedback = ui::get_retry_feedback()?;
-                        let mut new_feedbacks = feedbacks;
-                        if let Some(fb) = new_feedback {
-                            new_feedbacks.push(fb);
-                        } else {
+                        if new_feedback.is_none() {
                             ui::warning(
                                 "No feedback provided, will retry with existing instructions.",
                                 colored,
                             );
                         }
-                        CommitState::Generating {
-                            attempt: attempt + 1,
-                            feedbacks: new_feedbacks,
+                        UserAction::RetryWithFeedback {
+                            feedback: new_feedback,
                         }
                     }
 
-                    ui::CommitAction::Quit => CommitState::Cancelled,
-                }
+                    ui::CommitAction::Quit => UserAction::Quit,
+                };
+
+                // 克隆 WaitingForAction 状态以调用 handle_action
+                let waiting_state = CommitState::WaitingForAction {
+                    message: message.clone(),
+                    attempt,
+                    feedbacks: feedbacks.clone(),
+                };
+                waiting_state.handle_action(user_action)
             }
 
-            CommitState::Accepted { message } => {
+            CommitState::Accepted { ref message } => {
                 // 执行 commit
                 ui::step("4/4", "Creating commit...", colored);
-                repo.commit(&message)?;
+                repo.commit(message)?;
 
                 println!();
                 ui::success("Commit created successfully!", colored);
@@ -184,7 +185,7 @@ pub async fn run(cli: &Cli, config: &AppConfig, no_edit: bool, yes: bool) -> Res
 /// 生成 commit message
 async fn generate_message(
     provider: &Arc<dyn LLMProvider>,
-    repo: &GitRepository,
+    repo: &dyn GitOperations,
     diff: &str,
     stats: &DiffStats,
     config: &AppConfig,
