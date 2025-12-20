@@ -66,9 +66,9 @@ impl GcopError {
             GcopError::Config(msg) if msg.contains("not found in config") => Some(
                 "Check your ~/.config/gcop/config.toml or use the default providers: claude, openai, ollama",
             ),
-            GcopError::Network(_) => Some(
-                "Check your network connection, proxy settings, or API endpoint configuration"
-            ),
+            GcopError::Network(_) => {
+                Some("Check your network connection, proxy settings, or API endpoint configuration")
+            }
             GcopError::Llm(msg) if msg.contains("timeout") => {
                 Some("The API request timed out. Check network or try again later")
             }

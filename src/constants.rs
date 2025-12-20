@@ -33,6 +33,15 @@ pub mod ui {
     pub const MAX_FEEDBACK_LENGTH: usize = 200;
 }
 
+/// 重试相关常量
+pub mod retry {
+    /// LLM API 请求最大重试次数
+    pub const MAX_RETRY_ATTEMPTS: usize = 3;
+
+    /// 初始重试延迟（毫秒）
+    pub const INITIAL_RETRY_DELAY_MS: u64 = 1000;
+}
+
 /// 文件相关常量
 pub mod file {
     /// 最大文件大小（10MB）

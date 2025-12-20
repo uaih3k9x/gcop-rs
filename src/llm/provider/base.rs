@@ -5,24 +5,33 @@
 use reqwest::Client;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
+use std::time::Duration;
 
 use crate::config::ProviderConfig;
 use crate::constants::llm::{DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE};
+use crate::constants::retry::{INITIAL_RETRY_DELAY_MS, MAX_RETRY_ATTEMPTS};
 use crate::constants::ui::ERROR_PREVIEW_LENGTH;
 use crate::error::{GcopError, Result};
 use crate::llm::ReviewResult;
 
 use super::utils::complete_endpoint;
 
-/// 发送 LLM API 请求的通用函数
-///
-/// # Arguments
-/// * `client` - HTTP 客户端
-/// * `endpoint` - API 端点
-/// * `headers` - 额外的请求头
-/// * `request_body` - 请求体
-/// * `provider_name` - Provider 名称（用于日志和错误信息）
-pub async fn send_llm_request<Req, Resp>(
+/// 判断错误是否应该重试
+fn is_retryable_error(error: &GcopError) -> bool {
+    match error {
+        // 连接失败 -> 重试
+        GcopError::Llm(msg) if msg.contains("connection failed") => true,
+
+        // 429 限流 -> 重试
+        GcopError::Llm(msg) if msg.contains("429") => true,
+
+        // 其他错误 -> 不重试
+        _ => false,
+    }
+}
+
+/// 尝试发送一次 LLM API 请求（不包含重试逻辑）
+async fn try_send_request<Req, Resp>(
     client: &Client,
     endpoint: &str,
     headers: &[(&str, &str)],
@@ -59,7 +68,12 @@ where
             error_type = "decode error";
         }
 
-        tracing::error!("{} API request failed [{}]: {}", provider_name, error_type, error_details);
+        tracing::error!(
+            "{} API request failed [{}]: {}",
+            provider_name,
+            error_type,
+            error_details
+        );
 
         // 为不同类型的网络错误提供更详细的错误信息
         if e.is_timeout() {
@@ -96,6 +110,83 @@ where
             provider_name, e, response_text
         ))
     })
+}
+
+/// 发送 LLM API 请求的通用函数（带重试机制）
+///
+/// # Arguments
+/// * `client` - HTTP 客户端
+/// * `endpoint` - API 端点
+/// * `headers` - 额外的请求头
+/// * `request_body` - 请求体
+/// * `provider_name` - Provider 名称（用于日志和错误信息）
+pub async fn send_llm_request<Req, Resp>(
+    client: &Client,
+    endpoint: &str,
+    headers: &[(&str, &str)],
+    request_body: &Req,
+    provider_name: &str,
+) -> Result<Resp>
+where
+    Req: Serialize,
+    Resp: DeserializeOwned,
+{
+    let mut attempt = 0;
+
+    loop {
+        attempt += 1;
+
+        // 尝试发送请求
+        match try_send_request(client, endpoint, headers, request_body, provider_name).await {
+            Ok(resp) => {
+                if attempt > 1 {
+                    tracing::info!(
+                        "{} API request succeeded after {} attempts",
+                        provider_name,
+                        attempt
+                    );
+                }
+                return Ok(resp);
+            }
+            Err(e) => {
+                // 判断是否应该重试
+                let should_retry = is_retryable_error(&e);
+
+                if !should_retry {
+                    tracing::debug!(
+                        "{} API request failed with non-retryable error",
+                        provider_name
+                    );
+                    return Err(e);
+                }
+
+                // 检查是否还有重试次数
+                if attempt > MAX_RETRY_ATTEMPTS {
+                    tracing::error!(
+                        "{} API request failed after {} attempts",
+                        provider_name,
+                        attempt
+                    );
+                    return Err(e);
+                }
+
+                // 计算指数退避延迟：1s, 2s, 4s
+                let delay_ms = INITIAL_RETRY_DELAY_MS * (1 << (attempt - 1));
+                let delay = Duration::from_millis(delay_ms);
+
+                tracing::warn!(
+                    "{} API request failed (attempt {}/{}): {}. Retrying in {:.1}s...",
+                    provider_name,
+                    attempt,
+                    MAX_RETRY_ATTEMPTS + 1,
+                    e,
+                    delay.as_secs_f64()
+                );
+
+                tokio::time::sleep(delay).await;
+            }
+        }
+    }
 }
 
 /// 提取 API key（配置优先，环境变量 fallback）
