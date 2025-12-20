@@ -1,6 +1,7 @@
 use git2::{DiffOptions, Repository};
 use std::io::Write;
 
+use crate::constants::file::MAX_FILE_SIZE;
 use crate::error::{GcopError, Result};
 use crate::git::{DiffStats, GitOperations};
 
@@ -122,6 +123,15 @@ impl GitOperations for GitRepository {
     }
 
     fn get_file_content(&self, path: &str) -> Result<String> {
+        let metadata = std::fs::metadata(path)?;
+        if metadata.len() > MAX_FILE_SIZE {
+            return Err(GcopError::InvalidInput(format!(
+                "File too large: {} bytes (max {} bytes). Please review manually.",
+                metadata.len(),
+                MAX_FILE_SIZE
+            )));
+        }
+
         let content = std::fs::read_to_string(path)?;
         Ok(content)
     }

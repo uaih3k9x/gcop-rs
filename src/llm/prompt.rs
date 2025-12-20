@@ -1,66 +1,5 @@
+use crate::constants::prompts;
 use crate::llm::{CommitContext, ReviewType};
-
-/// 默认的 commit prompt 模板
-const DEFAULT_COMMIT_PROMPT: &str = r#"You are an expert software engineer reviewing a git diff to generate a concise, informative commit message.
-
-## Git Diff:
-```
-{diff}
-```
-
-## Context:
-- Files changed: {files_changed}
-- Insertions: {insertions}
-- Deletions: {deletions}
-{branch_info}
-
-## Instructions:
-1. Analyze the changes carefully
-2. Generate a commit message following conventional commits format
-3. First line: type(scope): brief summary (max 72 chars)
-4. Blank line
-5. Body: explain what and why (not how), if necessary
-6. Keep it concise but informative
-
-Common types: feat, fix, docs, style, refactor, test, chore
-
-Output only the commit message, no explanations."#;
-
-/// 默认的 review prompt 模板
-const DEFAULT_REVIEW_PROMPT: &str = r#"You are an expert code reviewer. Review the following code changes carefully.
-
-## Code to Review:
-```
-{diff}
-```
-
-## Review Criteria:
-1. **Correctness**: Are there any bugs or logical errors?
-2. **Security**: Are there any security vulnerabilities?
-3. **Performance**: Are there any performance issues?
-4. **Maintainability**: Is the code readable and maintainable?
-5. **Best Practices**: Does it follow best practices?"#;
-
-/// 默认的 JSON 输出格式说明（用于自定义 review prompt 时追加）
-const DEFAULT_JSON_FORMAT: &str = r#"## Output Format:
-Provide your review in JSON format
-Do not include any explanations outside the JSON structure. Format as follows:
-{{
-  "summary": "Brief overall assessment",
-  "issues": [
-    {{
-      "severity": "critical" | "warning" | "info",
-      "description": "Issue description",
-      "file": "filename (if applicable)",
-      "line": line_number (if applicable)
-    }}
-  ],
-  "suggestions": [
-    "Improvement suggestion 1"
-  ]
-}}
-
-If no issues found, return empty issues array but provide constructive suggestions."#;
 
 /// 构建 commit message 生成的 prompt
 pub fn build_commit_prompt(
@@ -77,7 +16,7 @@ pub fn build_commit_prompt(
             )
         }
         Some(t) => t.to_string(),
-        None => DEFAULT_COMMIT_PROMPT.to_string(),
+        None => prompts::DEFAULT_COMMIT_PROMPT.to_string(),
     };
 
     let branch_info = context
@@ -116,7 +55,7 @@ pub fn build_review_prompt(
 ) -> String {
     let mut template = custom_template
         .map(|t| t.to_string())
-        .unwrap_or_else(|| DEFAULT_REVIEW_PROMPT.to_string());
+        .unwrap_or_else(|| prompts::DEFAULT_REVIEW_PROMPT.to_string());
 
     // 检测并追加缺失的 {diff}
     if !template.contains("{diff}") {
@@ -125,7 +64,7 @@ pub fn build_review_prompt(
 
     // 始终追加 JSON 格式说明
     template.push_str("\n\n");
-    template.push_str(DEFAULT_JSON_FORMAT);
+    template.push_str(prompts::DEFAULT_JSON_FORMAT);
 
     template.replace("{diff}", diff)
 }
