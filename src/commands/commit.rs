@@ -214,13 +214,23 @@ async fn generate_message(
     Ok(message)
 }
 
-/// 显示生成的 message
-fn display_message(message: &str, attempt: usize, colored: bool) {
-    let header = if attempt == 0 {
+/// 格式化消息头部（纯函数，便于测试）
+fn format_message_header(attempt: usize) -> String {
+    if attempt == 0 {
         "Generated commit message:".to_string()
     } else {
         format!("Regenerated commit message (attempt {}):", attempt + 1)
-    };
+    }
+}
+
+/// 格式化编辑后消息头部（纯函数，便于测试）
+fn format_edited_header() -> &'static str {
+    "Updated commit message:"
+}
+
+/// 显示生成的 message
+fn display_message(message: &str, attempt: usize, colored: bool) {
+    let header = format_message_header(attempt);
 
     println!("\n{}", ui::info(&header, colored));
     if colored {
@@ -232,10 +242,44 @@ fn display_message(message: &str, attempt: usize, colored: bool) {
 
 /// 显示编辑后的 message
 fn display_edited_message(message: &str, colored: bool) {
-    println!("\n{}", ui::info("Updated commit message:", colored));
+    println!("\n{}", ui::info(format_edited_header(), colored));
     if colored {
         println!("{}", message.yellow());
     } else {
         println!("{}", message);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use pretty_assertions::assert_eq;
+
+    // === format_message_header 测试 ===
+
+    #[test]
+    fn test_format_message_header_first_attempt() {
+        let header = format_message_header(0);
+        assert_eq!(header, "Generated commit message:");
+    }
+
+    #[test]
+    fn test_format_message_header_second_attempt() {
+        let header = format_message_header(1);
+        assert_eq!(header, "Regenerated commit message (attempt 2):");
+    }
+
+    #[test]
+    fn test_format_message_header_third_attempt() {
+        let header = format_message_header(2);
+        assert_eq!(header, "Regenerated commit message (attempt 3):");
+    }
+
+    // === format_edited_header 测试 ===
+
+    #[test]
+    fn test_format_edited_header() {
+        let header = format_edited_header();
+        assert_eq!(header, "Updated commit message:");
     }
 }

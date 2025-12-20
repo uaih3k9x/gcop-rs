@@ -66,3 +66,4 @@ path = "examples/test_git_ops.rs"
 tempfile = "3.14"           # 临时文件/目录
 mockito = "1.6"             # HTTP API mock
 pretty_assertions = "1.4"   # 更好的 assert 输出
+serial_test = "3.1"         # 环境变量测试串行化
