@@ -29,16 +29,10 @@ AI 驱动的 Git 提交信息生成器和代码审查工具，使用 Rust 编写
 ### 1. 安装
 
 ```bash
-# 克隆并编译
-git clone https://github.com/AptS-1547/gcop-rs.git
-cd gcop-rs
-cargo build --release
-
-# 复制到 PATH
-sudo cp target/release/gcop-rs /usr/local/bin/gcop-rs
+cargo install gcop-rs
 ```
 
-详见 [docs/zh/installation.md](docs/zh/installation.md)。
+其他安装方式（源码安装、Windows 等），详见 [docs/zh/installation.md](docs/zh/installation.md)。
 
 ### 2. 配置
 
@@ -49,13 +43,16 @@ gcop-rs init
 ```
 
 交互式向导将：
-- 创建配置目录和文件
-- 设置安全文件权限 (chmod 600)
+- 在平台特定位置创建配置目录和文件
+- 设置安全文件权限（Unix/Linux/macOS）
 - 可选安装便捷的 git 别名
 
 **方式 2: 手动设置**
 
-创建 `~/.config/gcop/config.toml`：
+在以下位置创建配置文件：
+- **Linux**: `~/.config/gcop/config.toml`
+- **macOS**: `~/Library/Application Support/gcop/config.toml`
+- **Windows**: `%APPDATA%\gcop\config.toml`
 
 ```toml
 [llm]
@@ -245,7 +242,10 @@ gcop-rs alias --remove --force      # 删除所有别名
 
 ## 配置
 
-配置文件位置：`~/.config/gcop/config.toml`
+配置文件位置（平台特定）：
+- **Linux**: `~/.config/gcop/config.toml`
+- **macOS**: `~/Library/Application Support/gcop/config.toml`
+- **Windows**: `%APPDATA%\gcop\config.toml`
 
 使用 Claude API 的示例配置：
 

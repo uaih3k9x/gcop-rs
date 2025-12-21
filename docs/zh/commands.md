@@ -35,14 +35,14 @@ gcop-rs init
 **说明**:
 
 交互式设置，指导你完成：
-1. 创建配置目录 (`~/.config/gcop/`)
+1. 创建配置目录（平台特定位置）
 2. 复制示例配置文件
-3. 设置安全文件权限 (600)
+3. 设置安全文件权限（仅 Unix/Linux/macOS）
 4. 可选安装 git 别名
 
 **选项**: 无
 
-**示例**:
+**示例** (Linux):
 ```bash
 $ gcop-rs init
 
@@ -66,7 +66,7 @@ $ gcop-rs init
 ```
 
 **创建的内容**:
-- `~/.config/gcop/config.toml` (来自 `examples/config.toml.example`)
+- 配置文件位于平台特定位置（来自 `examples/config.toml.example`）
 - Git 别名配置到 `~/.gitconfig`（如果选择安装）
 
 **何时使用**: 首次设置或从头重新配置时。
@@ -256,7 +256,7 @@ gcop-rs config <子命令>
 gcop-rs config edit
 ```
 
-**打开**: 在 `$EDITOR` 中打开 `~/.config/gcop/config.toml`（回退到 `vi`）
+**打开**: 在 `$EDITOR` 中打开配置文件（平台特定位置）（Unix 回退到 `vi`，Windows 回退到 `notepad`）
 
 **校验**: 保存后会自动校验配置（类似 `visudo`）。如果校验失败，会显示一个菜单：
 

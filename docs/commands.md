@@ -35,14 +35,14 @@ gcop-rs init
 **Description**:
 
 Interactive setup that guides you through:
-1. Creating configuration directory (`~/.config/gcop/`)
+1. Creating configuration directory (platform-specific location)
 2. Copying example configuration file
-3. Setting secure file permissions (600)
+3. Setting secure file permissions (Unix/Linux/macOS only)
 4. Optionally installing git aliases
 
 **Options**: None
 
-**Example**:
+**Example** (Linux):
 ```bash
 $ gcop-rs init
 
@@ -66,7 +66,7 @@ Install git aliases? (Y/n): y
 ```
 
 **What it creates**:
-- `~/.config/gcop/config.toml` (from `examples/config.toml.example`)
+- Config file at platform-specific location (from `examples/config.toml.example`)
 - Git aliases in `~/.gitconfig` (if you choose to install them)
 
 **When to use**: First time setup or when reconfiguring from scratch.
@@ -256,7 +256,7 @@ Open configuration file in your default editor with validation.
 gcop-rs config edit
 ```
 
-**Opens**: `~/.config/gcop/config.toml` in `$EDITOR` (falls back to `vi`)
+**Opens**: Config file (platform-specific location) in `$EDITOR` (falls back to `vi` on Unix, `notepad` on Windows)
 
 **Validation**: After saving, the configuration is automatically validated (like `visudo`). If validation fails, you'll see a menu:
 

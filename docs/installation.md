@@ -6,6 +6,23 @@
 - **Git**: Any recent version
 - **Operating System**: Linux, macOS, or Windows
 
+## Quick Install (Recommended)
+
+The easiest way to install gcop-rs is via cargo:
+
+```bash
+cargo install gcop-rs
+```
+
+This will download and install the latest version from [crates.io](https://crates.io/crates/gcop-rs).
+
+### Verify Installation
+
+```bash
+gcop-rs --version
+gcop-rs --help
+```
+
 ## From Source
 
 ### 1. Clone Repository
@@ -33,18 +50,37 @@ The binary will be at:
 
 **Option A: System-wide installation**
 
+Linux/macOS:
 ```bash
 sudo cp target/release/gcop-rs /usr/local/bin/gcop-rs
 ```
 
+Windows (PowerShell as Administrator):
+```powershell
+Copy-Item target\release\gcop-rs.exe C:\Windows\System32\gcop-rs.exe
+```
+
 **Option B: User installation**
 
+Linux/macOS:
 ```bash
 mkdir -p ~/.local/bin
-cp target/release/gcop-rs ~/.local/bin/gcop
+cp target/release/gcop-rs ~/.local/bin/gcop-rs
 
 # Add to PATH if not already (add to ~/.bashrc or ~/.zshrc)
 export PATH="$HOME/.local/bin:$PATH"
+```
+
+Windows (PowerShell):
+```powershell
+# Create directory if not exists
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.local\bin"
+
+# Copy binary
+Copy-Item target\release\gcop-rs.exe "$env:USERPROFILE\.local\bin\gcop-rs.exe"
+
+# Add to PATH (run once, then restart terminal)
+[Environment]::SetEnvironmentVariable("Path", "$env:Path;$env:USERPROFILE\.local\bin", "User")
 ```
 
 **Option C: Cargo install**
@@ -65,6 +101,16 @@ gcop-rs --help
 
 ## Update
 
+**If installed via cargo:**
+
+```bash
+cargo install gcop-rs --force
+```
+
+**If installed from source:**
+
+Linux/macOS:
+
 ```bash
 cd gcop-rs
 git pull
@@ -72,17 +118,57 @@ cargo build --release
 sudo cp target/release/gcop-rs /usr/local/bin/gcop-rs
 ```
 
+Windows (PowerShell as Administrator):
+
+```powershell
+cd gcop-rs
+git pull
+cargo build --release
+Copy-Item target\release\gcop-rs.exe C:\Windows\System32\gcop-rs.exe
+```
+
 ## Uninstall
+
+**If installed via cargo:**
+
+```bash
+cargo uninstall gcop-rs
+```
+
+**If installed manually:**
+
+Linux/macOS:
 
 ```bash
 # If installed to /usr/local/bin
 sudo rm /usr/local/bin/gcop-rs
 
-# If installed via cargo
-cargo uninstall gcop-rs
+# If installed to ~/.local/bin
+rm ~/.local/bin/gcop-rs
+```
 
-# Remove config (optional)
+Windows (PowerShell as Administrator):
+
+```powershell
+# If installed to System32
+Remove-Item C:\Windows\System32\gcop-rs.exe
+
+# If installed to user directory
+Remove-Item "$env:USERPROFILE\.local\bin\gcop-rs.exe"
+```
+
+**Remove config (optional):**
+
+Linux/macOS:
+
+```bash
 rm -rf ~/.config/gcop
+```
+
+Windows (PowerShell):
+
+```powershell
+Remove-Item -Recurse -Force "$env:APPDATA\gcop"
 ```
 
 ## Next Steps

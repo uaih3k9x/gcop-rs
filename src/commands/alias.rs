@@ -3,6 +3,7 @@ use colored::Colorize;
 use crate::error::{GcopError, Result};
 use crate::ui;
 use std::process::Command;
+use which::which;
 
 // 完整的 git alias 列表（12 个，基于原项目 + review）
 const GCOP_ALIASES: &[(&str, &str, &str)] = &[
@@ -70,10 +71,10 @@ pub fn install_all(force: bool, colored: bool) -> Result<()> {
         ui::error("'gcop-rs' command not found in PATH", colored);
         println!();
         println!("{}", ui::info("Install gcop-rs first:", colored));
-        println!("  sudo cp target/release/gcop-rs /usr/local/bin/gcop-rs");
+        println!("  cargo install gcop-rs");
         println!();
-        println!("{}", ui::info("Or add to PATH:", colored));
-        println!("  export PATH=\"$HOME/.local/bin:$PATH\"");
+        println!("{}", ui::info("Or read the installation guide:", colored));
+        println!("  https://github.com/AptS-1547/gcop-rs/blob/master/docs/installation.md");
         return Err(GcopError::Config("gcop-rs not in PATH".to_string()));
     }
 
@@ -326,11 +327,7 @@ fn remove_aliases(force: bool, colored: bool) -> Result<()> {
 
 /// 检查 gcop-rs 命令是否在 PATH 中
 fn is_gcop_in_path() -> bool {
-    Command::new("which")
-        .arg("gcop-rs")
-        .output()
-        .map(|output| output.status.success())
-        .unwrap_or(false)
+    which("gcop-rs").is_ok()
 }
 
 /// 获取 git alias 的值

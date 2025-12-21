@@ -54,6 +54,7 @@ toml = "0.9"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 mockall = { version = "0.13", optional = true }  # 测试工具
+which = "8.0.0"
 
 [lib]
 name = "gcop_rs"

@@ -2,24 +2,47 @@
 
 ## 配置文件位置
 
-gcop-rs 使用 TOML 配置文件，位置：
+gcop-rs 使用 TOML 配置文件，位置因平台而异：
 
-```
-~/.config/gcop/config.toml
-```
+| 平台 | 位置 |
+|------|------|
+| Linux | `~/.config/gcop/config.toml` |
+| macOS | `~/Library/Application Support/gcop/config.toml` |
+| Windows | `%APPDATA%\gcop\config.toml` |
 
 配置文件是**可选的**。如果不存在，将使用默认值。
 
 ## 快速设置
 
-复制示例配置：
+**推荐：使用 init 命令**
 
+```bash
+gcop-rs init
+```
+
+这将在正确的平台特定位置创建配置文件。
+
+**手动设置：**
+
+Linux:
 ```bash
 mkdir -p ~/.config/gcop
 cp examples/config.toml.example ~/.config/gcop/config.toml
 ```
 
-然后编辑 `~/.config/gcop/config.toml` 添加你的 API key。
+macOS:
+```bash
+mkdir -p ~/Library/Application\ Support/gcop
+cp examples/config.toml.example ~/Library/Application\ Support/gcop/config.toml
+```
+
+Windows (PowerShell):
+```powershell
+New-Item -ItemType Directory -Force -Path "$env:APPDATA\gcop"
+Copy-Item examples\config.toml.example "$env:APPDATA\gcop\config.toml"
+```
+
+然后编辑配置文件添加你的 API key。
 
 ## 基础配置
 
@@ -155,7 +178,7 @@ max_size = 10485760      # 最大文件大小（10MB）
 
 ### 优先级顺序
 
-1. **配置文件**（`~/.config/gcop/config.toml`）
+1. **配置文件**（平台特定位置，见上方）
 2. **环境变量**（fallback）
 
 ### 配置方式
@@ -176,9 +199,12 @@ export OPENAI_API_KEY="sk-your-openai-key"
 
 ### 安全建议
 
-- **设置文件权限**: `chmod 600 ~/.config/gcop/config.toml`
-- **不要提交** config.toml 到 git
-- **添加到 .gitignore**（如果创建项目级配置）
+**Linux/macOS:**
+- 设置文件权限: `chmod 600 <配置文件路径>`
+
+**所有平台:**
+- 不要将 config.toml 提交到 git
+- 如果创建项目级配置，添加到 .gitignore
 
 ## 命令行覆盖
 

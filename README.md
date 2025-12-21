@@ -29,16 +29,10 @@ AI-powered Git commit message generator and code reviewer, written in Rust.
 ### 1. Installation
 
 ```bash
-# Clone and build
-git clone https://github.com/AptS-1547/gcop-rs.git
-cd gcop-rs
-cargo build --release
-
-# Copy to PATH
-sudo cp target/release/gcop-rs /usr/local/bin/gcop-rs
+cargo install gcop-rs
 ```
 
-See [docs/installation.md](docs/installation.md) for more options.
+For other installation methods (from source, Windows, etc.), see [docs/installation.md](docs/installation.md).
 
 ### 2. Configure
 
@@ -49,13 +43,16 @@ gcop-rs init
 ```
 
 This interactive wizard will:
-- Create config directory and file
-- Set secure file permissions (chmod 600)
+- Create config directory and file at the platform-specific location
+- Set secure file permissions (Unix/Linux/macOS)
 - Optionally install convenient git aliases
 
 **Option 2: Manual setup**
 
-Create `~/.config/gcop/config.toml`:
+Create config file at:
+- **Linux**: `~/.config/gcop/config.toml`
+- **macOS**: `~/Library/Application Support/gcop/config.toml`
+- **Windows**: `%APPDATA%\gcop\config.toml`
 
 ```toml
 [llm]
@@ -245,7 +242,10 @@ See [docs/aliases.md](docs/aliases.md) for details.
 
 ## Configuration
 
-Config file location: `~/.config/gcop/config.toml`
+Config file location (platform-specific):
+- **Linux**: `~/.config/gcop/config.toml`
+- **macOS**: `~/Library/Application Support/gcop/config.toml`
+- **Windows**: `%APPDATA%\gcop\config.toml`
 
 Example configuration with Claude API:
 

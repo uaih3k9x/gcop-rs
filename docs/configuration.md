@@ -2,24 +2,47 @@
 
 ## Configuration File Location
 
-gcop-rs uses a TOML configuration file located at:
+gcop-rs uses a TOML configuration file. The location is platform-specific:
 
-```
-~/.config/gcop/config.toml
-```
+| Platform | Location |
+|----------|----------|
+| Linux | `~/.config/gcop/config.toml` |
+| macOS | `~/Library/Application Support/gcop/config.toml` |
+| Windows | `%APPDATA%\gcop\config.toml` |
 
 The configuration file is **optional**. If not present, default values are used.
 
 ## Quick Setup
 
-Copy the example configuration:
+**Recommended: Use the init command**
 
+```bash
+gcop-rs init
+```
+
+This will create the config file at the correct platform-specific location.
+
+**Manual setup:**
+
+Linux:
 ```bash
 mkdir -p ~/.config/gcop
 cp examples/config.toml.example ~/.config/gcop/config.toml
 ```
 
-Then edit `~/.config/gcop/config.toml` to add your API key.
+macOS:
+```bash
+mkdir -p ~/Library/Application\ Support/gcop
+cp examples/config.toml.example ~/Library/Application\ Support/gcop/config.toml
+```
+
+Windows (PowerShell):
+```powershell
+New-Item -ItemType Directory -Force -Path "$env:APPDATA\gcop"
+Copy-Item examples\config.toml.example "$env:APPDATA\gcop\config.toml"
+```
+
+Then edit the config file to add your API key.
 
 ## Basic Configuration
 
@@ -155,7 +178,7 @@ Each provider under `[llm.providers.<name>]` supports:
 
 ### Priority Order
 
-1. **Config file** (`~/.config/gcop/config.toml`)
+1. **Config file** (platform-specific location, see above)
 2. **Environment variable** (fallback)
 
 ### Methods
@@ -176,9 +199,12 @@ export OPENAI_API_KEY="sk-your-openai-key"
 
 ### Security
 
-- **Set file permissions**: `chmod 600 ~/.config/gcop/config.toml`
-- **Never commit** config.toml to git
-- **Add to .gitignore** if creating project-level config
+**Linux/macOS:**
+- Set file permissions: `chmod 600 <config-file-path>`
+
+**All platforms:**
+- Never commit config.toml to git
+- Add to .gitignore if creating project-level config
 
 ## Override with Command-Line
 
