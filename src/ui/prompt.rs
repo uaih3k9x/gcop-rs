@@ -60,7 +60,7 @@ pub fn commit_action_menu(
         options.push(format!(
             "{} {}",
             "↻+".blue().bold(),
-            "Retry with feedback - Regenerate with instructions".blue()
+            "Retry with feedback - Add instructions".blue()
         ));
 
         options.push(format!(
@@ -77,7 +77,7 @@ pub fn commit_action_menu(
         }
 
         options.push("↻ Retry - Regenerate".to_string());
-        options.push("↻+ Retry with feedback - Regenerate with instructions".to_string());
+        options.push("↻+ Retry with feedback - Add instructions".to_string());
         options.push("✕ Quit - Cancel commit".to_string());
     }
 
