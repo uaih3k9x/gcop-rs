@@ -5,6 +5,29 @@ All notable changes to gcop-rs will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-12-22
+
+### Added
+
+- **Streaming output for OpenAI provider**: Real-time typing effect like ChatGPT when generating commit messages
+  - New SSE (Server-Sent Events) parser module (`llm/provider/streaming.rs`)
+  - New streaming UI component (`ui/streaming.rs`)
+  - `LLMProvider` trait extended with `supports_streaming()` and `generate_commit_message_streaming()` methods
+  - Non-streaming providers automatically fallback to spinner mode
+- **New `streaming` config option** in `[ui]` section (default: `true`)
+- Colored prompt for retry feedback input
+
+### Changed
+
+- Simplified retry option text: "Retry with feedback - Add instructions" (was "Regenerate with instructions")
+- Commit generation now returns `(message, already_displayed)` tuple to avoid duplicate display in streaming mode
+
+### Dependencies
+
+- Added `bytes = "1.10"` for stream byte handling
+- Added `futures = "0.3"` for async stream processing
+- `reqwest` now uses `stream` feature
+
 ## [0.2.1] - 2025-12-21
 
 ### Fixed
@@ -174,6 +197,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Edit action properly returns to menu without triggering regeneration
 - Commit message display no longer duplicates after editing
 
+[0.3.0]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.3.0
 [0.2.1]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.2.1
 [0.2.0]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.2.0
 [0.1.6]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.1.6
