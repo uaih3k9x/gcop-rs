@@ -49,7 +49,7 @@ This interactive wizard will:
 
 **Option 2: Manual setup**
 
-Create config file at:
+Use `gcop-rs config edit` to open config file in your system editor, or create manually at:
 - **Linux**: `~/.config/gcop/config.toml`
 - **macOS**: `~/Library/Application Support/gcop/config.toml`
 - **Windows**: `%APPDATA%\gcop\config.toml`

@@ -49,7 +49,7 @@ gcop-rs init
 
 **方式 2: 手动设置**
 
-在以下位置创建配置文件：
+使用 `gcop-rs config edit` 在系统编辑器中打开配置文件，或手动创建于：
 - **Linux**: `~/.config/gcop/config.toml`
 - **macOS**: `~/Library/Application Support/gcop/config.toml`
 - **Windows**: `%APPDATA%\gcop\config.toml`
