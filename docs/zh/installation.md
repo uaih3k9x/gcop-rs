@@ -8,13 +8,45 @@
 
 ## 快速安装（推荐）
 
-最简单的安装方式是通过 cargo：
+### Homebrew (macOS/Linux)
+
+```bash
+brew tap AptS-1547/gcop-rs
+brew install gcop-rs
+```
+
+支持 macOS (Intel/Apple Silicon) 和 Linux (x86_64/ARM64)。
+
+### cargo-binstall
+
+如果你安装了 [cargo-binstall](https://github.com/cargo-bins/cargo-binstall)：
+
+```bash
+cargo binstall gcop-rs
+```
+
+直接下载预编译二进制，无需编译。
+
+### cargo install
 
 ```bash
 cargo install gcop-rs
 ```
 
-这将从 [crates.io](https://crates.io/crates/gcop-rs) 下载并安装最新版本。
+这将从 [crates.io](https://crates.io/crates/gcop-rs) 下载并编译。
+
+### 预编译二进制
+
+从 [GitHub Releases](https://github.com/AptS-1547/gcop-rs/releases) 下载：
+
+| 平台 | 文件 |
+|------|------|
+| macOS (Apple Silicon) | `gcop-rs-vX.X.X-macos-arm64` |
+| macOS (Intel) | `gcop-rs-vX.X.X-macos-amd64` |
+| Linux (x86_64) | `gcop-rs-vX.X.X-linux-amd64` |
+| Linux (ARM64) | `gcop-rs-vX.X.X-linux-arm64` |
+| Windows (x86_64) | `gcop-rs-vX.X.X-windows-amd64.exe` |
+| Windows (ARM64) | `gcop-rs-vX.X.X-windows-aarch64.exe` |
 
 ### 验证安装
 

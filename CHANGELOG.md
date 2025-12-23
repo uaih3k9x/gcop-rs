@@ -5,6 +5,16 @@ All notable changes to gcop-rs will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2025-12-23
+
+### Added
+
+- **Homebrew tap support**: Install via `brew tap AptS-1547/gcop-rs && brew install gcop-rs`
+  - Supports macOS (Intel/Apple Silicon) and Linux (x86_64/ARM64)
+  - Auto-updated on each release via GitHub Actions
+- **cargo-binstall support**: Install pre-compiled binaries via `cargo binstall gcop-rs`
+  - No compilation required, downloads platform-specific binary directly
+
 ## [0.4.0] - 2025-12-23
 
 ### Added
@@ -234,6 +244,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Edit action properly returns to menu without triggering regeneration
 - Commit message display no longer duplicates after editing
 
+[0.4.1]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.4.1
 [0.4.0]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.4.0
 [0.3.1]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.3.1
 [0.3.0]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.3.0

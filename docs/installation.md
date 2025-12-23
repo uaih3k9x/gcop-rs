@@ -8,13 +8,45 @@
 
 ## Quick Install (Recommended)
 
-The easiest way to install gcop-rs is via cargo:
+### Homebrew (macOS/Linux)
+
+```bash
+brew tap AptS-1547/gcop-rs
+brew install gcop-rs
+```
+
+Supports macOS (Intel/Apple Silicon) and Linux (x86_64/ARM64).
+
+### cargo-binstall
+
+If you have [cargo-binstall](https://github.com/cargo-bins/cargo-binstall) installed:
+
+```bash
+cargo binstall gcop-rs
+```
+
+This downloads pre-compiled binaries without compilation.
+
+### cargo install
 
 ```bash
 cargo install gcop-rs
 ```
 
-This will download and install the latest version from [crates.io](https://crates.io/crates/gcop-rs).
+This will download and compile from [crates.io](https://crates.io/crates/gcop-rs).
+
+### Pre-compiled Binaries
+
+Download from [GitHub Releases](https://github.com/AptS-1547/gcop-rs/releases):
+
+| Platform | File |
+|----------|------|
+| macOS (Apple Silicon) | `gcop-rs-vX.X.X-macos-arm64` |
+| macOS (Intel) | `gcop-rs-vX.X.X-macos-amd64` |
+| Linux (x86_64) | `gcop-rs-vX.X.X-linux-amd64` |
+| Linux (ARM64) | `gcop-rs-vX.X.X-linux-arm64` |
+| Windows (x86_64) | `gcop-rs-vX.X.X-windows-amd64.exe` |
+| Windows (ARM64) | `gcop-rs-vX.X.X-windows-aarch64.exe` |
 
 ### Verify Installation
 

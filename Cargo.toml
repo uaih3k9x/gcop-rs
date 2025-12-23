@@ -1,6 +1,6 @@
 [package]
 name = "gcop-rs"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2024"
 license = "MIT"
 description = "AI-powered Git commit message generator and code reviewer"
@@ -72,3 +72,27 @@ mockito = "1.6"             # HTTP API mock
 pretty_assertions = "1.4"   # 更好的 assert 输出
 serial_test = "3.1"         # 环境变量测试串行化
 gcop-rs = { path = ".", features = ["test-utils"] }  # 启用测试工具 feature
+
+# cargo-binstall 配置
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/gcop-rs-v{ version }-{ target }{ archive-suffix }"
+bin-dir = "gcop-rs-v{ version }-{ target }{ binary-ext }"
+pkg-fmt = "bin"
+
+[package.metadata.binstall.overrides.x86_64-apple-darwin]
+pkg-url = "{ repo }/releases/download/v{ version }/gcop-rs-v{ version }-macos-amd64"
+
+[package.metadata.binstall.overrides.aarch64-apple-darwin]
+pkg-url = "{ repo }/releases/download/v{ version }/gcop-rs-v{ version }-macos-arm64"
+
+[package.metadata.binstall.overrides.x86_64-unknown-linux-gnu]
+pkg-url = "{ repo }/releases/download/v{ version }/gcop-rs-v{ version }-linux-amd64"
+
+[package.metadata.binstall.overrides.aarch64-unknown-linux-gnu]
+pkg-url = "{ repo }/releases/download/v{ version }/gcop-rs-v{ version }-linux-arm64"
+
+[package.metadata.binstall.overrides.x86_64-pc-windows-msvc]
+pkg-url = "{ repo }/releases/download/v{ version }/gcop-rs-v{ version }-windows-amd64.exe"
+
+[package.metadata.binstall.overrides.aarch64-pc-windows-msvc]
+pkg-url = "{ repo }/releases/download/v{ version }/gcop-rs-v{ version }-windows-aarch64.exe"

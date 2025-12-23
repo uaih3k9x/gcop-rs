@@ -29,10 +29,18 @@ AI 驱动的 Git 提交信息生成器和代码审查工具，使用 Rust 编写
 ### 1. 安装
 
 ```bash
+# Homebrew (macOS/Linux)
+brew tap AptS-1547/gcop-rs
+brew install gcop-rs
+
+# cargo-binstall (无需编译)
+cargo binstall gcop-rs
+
+# cargo install (从源码编译)
 cargo install gcop-rs
 ```
 
-其他安装方式（源码安装、Windows 等），详见 [docs/zh/installation.md](docs/zh/installation.md)。
+其他安装方式详见 [docs/zh/installation.md](docs/zh/installation.md)。
 
 ### 2. 配置
 

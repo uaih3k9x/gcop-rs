@@ -29,10 +29,18 @@ AI-powered Git commit message generator and code reviewer, written in Rust.
 ### 1. Installation
 
 ```bash
+# Homebrew (macOS/Linux)
+brew tap AptS-1547/gcop-rs
+brew install gcop-rs
+
+# cargo-binstall (no compilation required)
+cargo binstall gcop-rs
+
+# cargo install (from source)
 cargo install gcop-rs
 ```
 
-For other installation methods (from source, Windows, etc.), see [docs/installation.md](docs/installation.md).
+For other installation methods, see [docs/installation.md](docs/installation.md).
 
 ### 2. Configure
 
