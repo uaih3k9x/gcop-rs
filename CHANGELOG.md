@@ -5,6 +5,25 @@ All notable changes to gcop-rs will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2025-12-23
+
+### Added
+
+- **Extended CI build platforms**:
+  - `aarch64-unknown-linux-gnu` (Linux ARM64) - for Raspberry Pi 64-bit, AWS Graviton, etc.
+  - `x86_64-apple-darwin` (macOS Intel) - restored support
+  - `aarch64-pc-windows-msvc` (Windows ARM64)
+
+### Changed
+
+- **git2 dependency optimization**: Disabled default features, removed openssl-related dependencies
+  - Simplified dependency tree, reduced compile time
+  - Improved cross-platform build compatibility
+
+### Documentation
+
+- Updated README with `gcop config edit` command usage
+
 ## [0.3.0] - 2025-12-22
 
 ### Added
@@ -197,6 +216,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Edit action properly returns to menu without triggering regeneration
 - Commit message display no longer duplicates after editing
 
+[0.3.1]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.3.1
 [0.3.0]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.3.0
 [0.2.1]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.2.1
 [0.2.0]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.2.0
