@@ -27,6 +27,10 @@ pub enum Commands {
         /// Skip confirmation before committing
         #[arg(short = 'y', long)]
         yes: bool,
+
+        /// Only generate and print commit message, do not commit
+        #[arg(short, long)]
+        dry_run: bool,
     },
 
     /// Review code changes
