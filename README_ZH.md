@@ -110,7 +110,9 @@ gcop-rs init  # 会提示是否安装别名
 ```bash
 git c          # AI 生成提交信息并提交
 git r          # AI 审查未提交的变更
+git s          # 显示仓库统计
 git ac         # 添加所有变更并用 AI 提交
+git cp         # AI 提交并推送
 git acp        # 添加、AI 提交并推送
 git gconfig    # 编辑 gcop-rs 配置
 git p          # 推送到远程
@@ -240,6 +242,25 @@ gcop-rs alias --remove --force      # 删除所有别名
 提供便捷的快捷方式，如 `git c`、`git r`、`git acp` 等。
 
 详见 [docs/zh/aliases.md](docs/zh/aliases.md)。
+
+---
+
+### `gcop-rs stats`
+
+显示仓库提交统计。
+
+```bash
+gcop-rs stats                       # 显示统计（文本格式）
+gcop-rs stats --format json         # 输出为 JSON
+gcop-rs stats --format markdown     # 输出为 Markdown
+gcop-rs stats --author "name"       # 按作者过滤
+```
+
+显示内容：
+- 总提交数和贡献者数
+- 仓库时间跨度
+- 贡献者排行榜（按提交数）
+- 最近活动（近 4 周）ASCII 柱状图
 
 ## 配置
 

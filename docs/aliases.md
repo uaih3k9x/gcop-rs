@@ -4,13 +4,15 @@ Complete guide to gcop-rs git aliases - convenient shortcuts for your daily Git 
 
 ## Overview
 
-gcop-rs provides 11 carefully designed git aliases that streamline common tasks:
+gcop-rs provides 13 carefully designed git aliases that streamline common tasks:
 
 | Alias | Command | Description |
 |-------|---------|-------------|
 | `git c` | `gcop-rs commit` | Quick AI-powered commit |
 | `git r` | `gcop-rs review` | AI review of changes |
+| `git s` | `gcop-rs stats` | Repository statistics |
 | `git ac` | `git add -A && gcop-rs commit` | Add all and commit |
+| `git cp` | `gcop-rs commit && git push` | Commit and push |
 | `git acp` | `git add -A && gcop-rs commit && git push` | Add, commit, and push |
 | `git cop` | `gcop-rs` | Main gcop-rs entry point |
 | `git gcommit` | `gcop-rs commit` | Full command alias |

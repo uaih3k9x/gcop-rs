@@ -3,9 +3,20 @@ pub mod diff;
 pub mod repository;
 
 use crate::error::Result;
+use chrono::{DateTime, Local};
 
 #[cfg(any(test, feature = "test-utils"))]
 use mockall::automock;
+
+/// Commit 信息
+#[derive(Debug, Clone)]
+pub struct CommitInfo {
+    pub author_name: String,
+    pub author_email: String,
+    pub timestamp: DateTime<Local>,
+    #[allow(dead_code)] // 预留字段，未来可用于 commit message 统计
+    pub message: String,
+}
 
 /// Git 操作的统一接口
 #[cfg_attr(any(test, feature = "test-utils"), automock)]
@@ -36,6 +47,9 @@ pub trait GitOperations {
 
     /// 检查是否有 staged changes
     fn has_staged_changes(&self) -> Result<bool>;
+
+    /// 获取 commit 历史
+    fn get_commit_history(&self) -> Result<Vec<CommitInfo>>;
 }
 
 /// Diff 统计信息

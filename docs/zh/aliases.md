@@ -4,13 +4,15 @@ gcop-rs git 别名完整指南 - 简化日常 Git 工作流程的便捷快捷方
 
 ## 概述
 
-gcop-rs 提供 11 个精心设计的 git 别名，简化常见任务：
+gcop-rs 提供 13 个精心设计的 git 别名，简化常见任务：
 
 | 别名 | 命令 | 说明 |
 |------|------|------|
 | `git c` | `gcop-rs commit` | 快速 AI 提交 |
 | `git r` | `gcop-rs review` | AI 审查变更 |
+| `git s` | `gcop-rs stats` | 仓库统计 |
 | `git ac` | `git add -A && gcop-rs commit` | 添加所有并提交 |
+| `git cp` | `gcop-rs commit && git push` | 提交并推送 |
 | `git acp` | `git add -A && gcop-rs commit && git push` | 添加、提交并推送 |
 | `git cop` | `gcop-rs` | gcop-rs 主入口 |
 | `git gcommit` | `gcop-rs commit` | 完整命令别名 |

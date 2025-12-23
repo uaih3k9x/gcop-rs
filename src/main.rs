@@ -49,7 +49,11 @@ fn main() -> Result<()> {
     // 根据子命令路由
     rt.block_on(async {
         match cli.command {
-            Commands::Commit { no_edit, yes, dry_run } => {
+            Commands::Commit {
+                no_edit,
+                yes,
+                dry_run,
+            } => {
                 // 执行 commit 命令
                 if let Err(e) = commands::commit::run(&cli, &config, no_edit, yes, dry_run).await {
                     // 错误处理
@@ -144,6 +148,23 @@ fn main() -> Result<()> {
                 remove,
             } => {
                 if let Err(e) = commands::alias::run(force, list, remove, config.ui.colored) {
+                    ui::error(&format!("Error: {}", e), config.ui.colored);
+                    if let Some(suggestion) = e.suggestion() {
+                        println!();
+                        println!(
+                            "{}",
+                            ui::info(&format!("Tip: {}", suggestion), config.ui.colored)
+                        );
+                    }
+                    std::process::exit(1);
+                }
+                Ok(())
+            }
+            Commands::Stats {
+                ref format,
+                ref author,
+            } => {
+                if let Err(e) = commands::stats::run(format, author.as_deref(), config.ui.colored) {
                     ui::error(&format!("Error: {}", e), config.ui.colored);
                     if let Some(suggestion) = e.suggestion() {
                         println!();

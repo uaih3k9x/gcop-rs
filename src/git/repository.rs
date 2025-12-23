@@ -1,9 +1,10 @@
-use git2::{DiffOptions, Repository};
+use chrono::{DateTime, Local, TimeZone};
+use git2::{DiffOptions, Repository, Sort};
 use std::io::Write;
 
 use crate::config::FileConfig;
 use crate::error::{GcopError, Result};
-use crate::git::{DiffStats, GitOperations};
+use crate::git::{CommitInfo, DiffStats, GitOperations};
 
 /// 默认最大文件大小（10MB）
 const DEFAULT_MAX_FILE_SIZE: u64 = 10 * 1024 * 1024;
@@ -173,5 +174,46 @@ impl GitOperations for GitRepository {
     fn has_staged_changes(&self) -> Result<bool> {
         let diff = self.get_staged_diff()?;
         Ok(!diff.trim().is_empty())
+    }
+
+    fn get_commit_history(&self) -> Result<Vec<CommitInfo>> {
+        let mut revwalk = self.repo.revwalk()?;
+        revwalk.push_head()?;
+        revwalk.set_sorting(Sort::TIME)?;
+
+        let mut commits = Vec::new();
+
+        for oid in revwalk {
+            let oid = oid?;
+            let commit = self.repo.find_commit(oid)?;
+
+            let author = commit.author();
+            let author_name = author.name().unwrap_or("Unknown").to_string();
+            let author_email = author.email().unwrap_or("").to_string();
+
+            // 转换 git2::Time 到 chrono::DateTime<Local>
+            let git_time = commit.time();
+            let timestamp: DateTime<Local> = Local
+                .timestamp_opt(git_time.seconds(), 0)
+                .single()
+                .unwrap_or_else(Local::now);
+
+            let message = commit
+                .message()
+                .unwrap_or("")
+                .lines()
+                .next()
+                .unwrap_or("")
+                .to_string();
+
+            commits.push(CommitInfo {
+                author_name,
+                author_email,
+                timestamp,
+                message,
+            });
+        }
+
+        Ok(commits)
     }
 }

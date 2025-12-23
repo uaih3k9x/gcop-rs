@@ -110,7 +110,9 @@ After installation, you can use these shortcuts:
 ```bash
 git c          # AI commit message and commit
 git r          # AI review uncommitted changes
+git s          # Show repository statistics
 git ac         # Add all changes and commit with AI
+git cp         # Commit with AI and push
 git acp        # Add all, commit with AI, and push
 git gconfig    # Edit gcop-rs configuration
 git p          # Push to remote
@@ -240,6 +242,25 @@ gcop-rs alias --remove --force      # Remove all aliases
 Provides convenient shortcuts like `git c`, `git r`, `git acp`, etc.
 
 See [docs/aliases.md](docs/aliases.md) for details.
+
+---
+
+### `gcop-rs stats`
+
+Show repository commit statistics.
+
+```bash
+gcop-rs stats                       # Show statistics (text format)
+gcop-rs stats --format json         # Output as JSON
+gcop-rs stats --format markdown     # Output as Markdown
+gcop-rs stats --author "name"       # Filter by author
+```
+
+Displays:
+- Total commits and contributors
+- Repository time span
+- Top contributors with commit counts
+- Recent activity (last 4 weeks) with ASCII bar chart
 
 ## Configuration
 

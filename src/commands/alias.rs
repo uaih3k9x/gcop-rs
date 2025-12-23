@@ -5,7 +5,7 @@ use crate::ui;
 use std::process::Command;
 use which::which;
 
-// 完整的 git alias 列表（12 个，基于原项目 + review）
+// 完整的 git alias 列表（13 个，基于原项目 + review）
 const GCOP_ALIASES: &[(&str, &str, &str)] = &[
     ("cop", "!gcop-rs", "Main entry point for gcop-rs"),
     (
@@ -15,6 +15,7 @@ const GCOP_ALIASES: &[(&str, &str, &str)] = &[
     ),
     ("c", "!gcop-rs commit", "Shorthand for 'git gcommit'"),
     ("r", "!gcop-rs review", "AI review of uncommitted changes"),
+    ("s", "!gcop-rs stats", "Show repository commit statistics"),
     (
         "ac",
         "!git add -A && gcop-rs commit",
@@ -120,6 +121,7 @@ pub fn install_all(force: bool, colored: bool) -> Result<()> {
     println!("\n{}", ui::info("Now you can use:", colored));
     println!("  git c        # AI commit");
     println!("  git r        # AI review");
+    println!("  git s        # Repository stats");
     println!("  git ac       # Add all and commit");
     println!("  git cp       # Commit and push");
     println!("  git acp      # Add all, commit, and push");

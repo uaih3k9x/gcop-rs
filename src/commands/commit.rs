@@ -18,7 +18,13 @@ use crate::ui;
 /// * `no_edit` - 是否跳过编辑
 /// * `yes` - 是否跳过确认
 /// * `dry_run` - 是否只输出 commit message 而不提交
-pub async fn run(cli: &Cli, config: &AppConfig, no_edit: bool, yes: bool, dry_run: bool) -> Result<()> {
+pub async fn run(
+    cli: &Cli,
+    config: &AppConfig,
+    no_edit: bool,
+    yes: bool,
+    dry_run: bool,
+) -> Result<()> {
     let repo = GitRepository::open(None)?;
     let provider = create_provider(config, cli.provider.as_deref())?;
 

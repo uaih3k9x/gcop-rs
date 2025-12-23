@@ -71,6 +71,17 @@ pub enum Commands {
         #[arg(short, long)]
         remove: bool,
     },
+
+    /// Show repository statistics
+    Stats {
+        /// Output format: text | json | markdown
+        #[arg(short, long, default_value = "text")]
+        format: String,
+
+        /// Filter by author name or email
+        #[arg(long)]
+        author: Option<String>,
+    },
 }
 
 #[derive(Subcommand)]
