@@ -212,5 +212,5 @@ Remove-Item -Recurse -Force "$env:APPDATA\gcop"
 ## 下一步
 
 1. [配置 LLM 提供商](configuration.md)
-2. 尝试[基本使用](../README_ZH.md#快速开始)
+2. 尝试[基本使用](commands.md)
 3. 探索[高级功能](providers.md)

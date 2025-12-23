@@ -26,7 +26,7 @@ custom_prompt = "Generate commit message in Chinese, be concise"
 ```
 
 This will be automatically expanded to:
-```
+````
 Generate commit message in Chinese, be concise
 
 ## Git Diff:
@@ -37,7 +37,7 @@ Generate commit message in Chinese, be concise
 ## Context:
 - Files: src/main.rs, src/lib.rs
 - Changes: +45 -12
-```
+````
 
 ### Review Prompts
 

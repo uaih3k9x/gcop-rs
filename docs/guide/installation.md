@@ -218,5 +218,5 @@ Remove-Item -Recurse -Force "$env:APPDATA\gcop"
 ## Next Steps
 
 1. [Configure your LLM provider](configuration.md)
-2. Try the [basic usage](../README.md#quick-start)
+2. Try the [basic usage](commands.md)
 3. Explore [advanced features](providers.md)
