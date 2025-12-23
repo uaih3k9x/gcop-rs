@@ -159,6 +159,7 @@ gcop-rs init
 gcop-rs commit              # 生成、审查并提交
 gcop-rs commit --no-edit    # 跳过编辑器
 gcop-rs commit --yes        # 跳过确认
+gcop-rs commit --dry-run    # 仅输出信息，不提交
 gcop-rs -v commit           # 详细模式
 ```
 

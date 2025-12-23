@@ -159,6 +159,7 @@ Generate AI-powered commit message for staged changes.
 gcop-rs commit              # Generate, review, and commit
 gcop-rs commit --no-edit    # Skip editor
 gcop-rs commit --yes        # Skip confirmation
+gcop-rs commit --dry-run    # Only print message, do not commit
 gcop-rs -v commit           # Verbose mode
 ```
 

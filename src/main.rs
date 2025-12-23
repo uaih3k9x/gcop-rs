@@ -49,9 +49,9 @@ fn main() -> Result<()> {
     // 根据子命令路由
     rt.block_on(async {
         match cli.command {
-            Commands::Commit { no_edit, yes } => {
+            Commands::Commit { no_edit, yes, dry_run } => {
                 // 执行 commit 命令
-                if let Err(e) = commands::commit::run(&cli, &config, no_edit, yes).await {
+                if let Err(e) = commands::commit::run(&cli, &config, no_edit, yes, dry_run).await {
                     // 错误处理
                     match e {
                         error::GcopError::UserCancelled => {

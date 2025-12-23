@@ -17,7 +17,8 @@ use crate::ui;
 /// * `config` - 应用配置
 /// * `no_edit` - 是否跳过编辑
 /// * `yes` - 是否跳过确认
-pub async fn run(cli: &Cli, config: &AppConfig, no_edit: bool, yes: bool) -> Result<()> {
+/// * `dry_run` - 是否只输出 commit message 而不提交
+pub async fn run(cli: &Cli, config: &AppConfig, no_edit: bool, yes: bool, dry_run: bool) -> Result<()> {
     let repo = GitRepository::open(None)?;
     let provider = create_provider(config, cli.provider.as_deref())?;
 
@@ -26,6 +27,7 @@ pub async fn run(cli: &Cli, config: &AppConfig, no_edit: bool, yes: bool) -> Res
         config,
         no_edit,
         yes,
+        dry_run,
         &repo as &dyn GitOperations,
         &provider,
     )
@@ -39,6 +41,7 @@ async fn run_with_deps(
     config: &AppConfig,
     no_edit: bool,
     yes: bool,
+    dry_run: bool,
     repo: &dyn GitOperations,
     provider: &Arc<dyn LLMProvider>,
 ) -> Result<()> {
@@ -58,6 +61,14 @@ async fn run_with_deps(
     // 4. 显示预览（可选）
     if config.commit.show_diff_preview {
         println!("\n{}", ui::format_diff_stats(&stats, colored));
+    }
+
+    // dry_run 模式：只生成并输出 commit message
+    if dry_run {
+        let (message, _) =
+            generate_message(provider, repo, &diff, &stats, config, &[], 0).await?;
+        println!("{}", message);
+        return Ok(());
     }
 
     // 5. 状态机主循环
