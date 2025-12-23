@@ -5,6 +5,24 @@ All notable changes to gcop-rs will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2025-12-23
+
+### Added
+
+- **New `stats` command**: Show repository commit statistics
+  - Total commits and contributors count
+  - Repository time span (first to last commit)
+  - Top contributors ranking with commit counts and percentages
+  - Recent activity (last 4 weeks) with ASCII bar chart
+  - Multiple output formats: `text` (default), `json`, `markdown`
+  - Author filter: `--author <name>` to filter by author name or email
+- **New `--dry-run` option for commit command**: Generate and print commit message without actually committing
+- **New `git s` alias**: Shorthand for `gcop-rs stats`
+
+### Dependencies
+
+- Added `chrono = "0.4"` for date/time handling in stats
+
 ## [0.3.1] - 2025-12-23
 
 ### Added
@@ -216,6 +234,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Edit action properly returns to menu without triggering regeneration
 - Commit message display no longer duplicates after editing
 
+[0.4.0]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.4.0
 [0.3.1]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.3.1
 [0.3.0]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.3.0
 [0.2.1]: https://github.com/AptS-1547/gcop-rs/releases/tag/v0.2.1
