@@ -61,10 +61,15 @@ jobs:
             artifact_name: gcop-rs
             platform: linux-amd64
 
-          # - target: x86_64-apple-darwin
-          #   os: macos-latest
-          #   artifact_name: gcop-rs
-          #   platform: macos-amd64
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+            artifact_name: gcop-rs
+            platform: linux-arm64
+
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            artifact_name: gcop-rs
+            platform: macos-amd64
 
           - target: aarch64-apple-darwin
             os: macos-latest
@@ -76,6 +81,11 @@ jobs:
             artifact_name: gcop-rs.exe
             platform: windows-amd64.exe
 
+          - target: aarch64-pc-windows-msvc
+            os: windows-latest
+            artifact_name: gcop-rs.exe
+            platform: windows-amd64.exe
+            
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
